@@ -1,0 +1,612 @@
+:root {
+  background: #081116;
+  color: #eef8f7;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  align-items: center;
+  background: #17a99a;
+  border: 0;
+  border-radius: 8px;
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  font-weight: 800;
+  gap: 0.5rem;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0.68rem 1rem;
+}
+
+button.secondary {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #eef8f7;
+}
+
+button.danger {
+  background: #c83d52;
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+input,
+select {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  color: #eef8f7;
+  min-height: 42px;
+  padding: 0.65rem 0.75rem;
+  width: 100%;
+}
+
+select option {
+  background: #101a20;
+  color: #eef8f7;
+}
+
+input::placeholder {
+  color: #8ca0a7;
+}
+
+.appShell {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(39, 126, 245, 0.24), transparent 28rem),
+    radial-gradient(circle at 90% 5%, rgba(23, 169, 154, 0.18), transparent 28rem),
+    linear-gradient(180deg, #081116 0%, #0c151a 45%, #10171b 100%);
+  min-height: 100vh;
+  padding-bottom: 1.5rem;
+}
+
+.topbar {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 1rem clamp(1rem, 4vw, 2.25rem);
+}
+
+.brand,
+.toolbar,
+.status,
+.iconButton,
+.message,
+.searchBox,
+.metric,
+.patientIdentity,
+.patientActions,
+.info,
+.scanMeta {
+  align-items: center;
+  display: flex;
+  gap: 0.65rem;
+}
+
+.brandMark {
+  align-items: center;
+  background: linear-gradient(135deg, rgba(23, 169, 154, 0.34), rgba(39, 126, 245, 0.32));
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  display: flex;
+  height: 52px;
+  justify-content: center;
+  width: 52px;
+}
+
+.brand h1,
+.railHeader h2,
+.patientHeader h2,
+.uploadCopy h3,
+.resultHeader h3,
+.emptyWorkspace h2,
+.emptyPanel h3 {
+  margin: 0;
+}
+
+.brand h1 {
+  font-size: 1.5rem;
+}
+
+.brand span,
+.railHeader span,
+.muted,
+.patientHeader p,
+.resultHeader p,
+.uploadCopy p,
+.emptyWorkspace p,
+.emptyPanel p,
+.scanListItem small,
+.fileDrop span {
+  color: #93a7ae;
+  font-size: 0.9rem;
+}
+
+.toolbar {
+  justify-content: flex-end;
+}
+
+.status,
+.confidence {
+  border: 1px solid rgba(119, 224, 214, 0.35);
+  border-radius: 999px;
+  color: #77e0d6;
+  font-weight: 900;
+  padding: 0.42rem 0.72rem;
+  white-space: nowrap;
+}
+
+.status.online {
+  background: rgba(23, 169, 154, 0.13);
+}
+
+.message {
+  background: rgba(255, 197, 87, 0.14);
+  border: 1px solid rgba(255, 197, 87, 0.34);
+  border-radius: 8px;
+  color: #ffe2a2;
+  margin: 0 clamp(1rem, 4vw, 2.25rem) 1rem;
+  padding: 0.75rem 0.9rem;
+}
+
+.message.inline {
+  margin: 0;
+}
+
+.statsGrid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 0 clamp(1rem, 4vw, 2.25rem) 1rem;
+}
+
+.metric {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 0.9rem;
+}
+
+.metricIcon {
+  align-items: center;
+  background: rgba(23, 169, 154, 0.16);
+  border-radius: 8px;
+  color: #77e0d6;
+  display: flex;
+  height: 40px;
+  justify-content: center;
+  width: 40px;
+}
+
+.metric span {
+  color: #93a7ae;
+  display: block;
+  font-size: 0.82rem;
+}
+
+.metric strong {
+  display: block;
+  font-size: 1.35rem;
+}
+
+.workspace {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(310px, 380px) minmax(0, 1fr);
+  padding: 0 clamp(1rem, 4vw, 2.25rem);
+}
+
+.patientRail,
+.patientWorkspace {
+  background: rgba(10, 22, 29, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.3);
+}
+
+.patientRail {
+  align-self: start;
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+}
+
+.railHeader,
+.patientHeader,
+.resultHeader,
+.probabilityLabel {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.iconOnly {
+  min-height: 38px;
+  padding: 0.5rem 0.65rem;
+}
+
+.patientForm {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.fieldRow {
+  display: grid;
+  gap: 0.7rem;
+  grid-template-columns: 1fr 1fr;
+}
+
+.searchBox {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: #77e0d6;
+  padding: 0 0.75rem;
+}
+
+.searchBox input {
+  background: transparent;
+  border: 0;
+  padding-left: 0;
+}
+
+.patientCards {
+  display: grid;
+  gap: 0.65rem;
+  max-height: calc(100vh - 270px);
+  overflow: auto;
+  padding-right: 0.2rem;
+}
+
+.patientCard {
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  align-items: center;
+  column-gap: 0.75rem;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 0.75rem;
+  justify-content: stretch;
+  justify-items: stretch;
+  min-height: 68px;
+  padding: 0.75rem;
+  text-align: left;
+  width: 100%;
+}
+
+.patientCard.active {
+  background: rgba(23, 169, 154, 0.17);
+  border-color: rgba(119, 224, 214, 0.55);
+}
+
+.avatar {
+  align-items: center;
+  background: linear-gradient(135deg, rgba(23, 169, 154, 0.32), rgba(39, 126, 245, 0.3));
+  border-radius: 8px;
+  color: #ffffff;
+  display: flex;
+  flex: 0 0 auto;
+  font-weight: 900;
+  height: 42px;
+  justify-content: center;
+  justify-self: center;
+  line-height: 1;
+  width: 42px;
+}
+
+.avatar.large {
+  height: 58px;
+  width: 58px;
+}
+
+.patientCardMain {
+  display: grid;
+  gap: 0.12rem;
+  justify-self: stretch;
+  line-height: 1.2;
+  min-width: 0;
+  text-align: left;
+}
+
+.patientCardMain strong,
+.patientCardMain span,
+.scanListItem span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.patientCardMain strong {
+  color: #eef8f7;
+  display: block;
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.patientCardMain span {
+  color: #93a7ae;
+  display: block;
+  font-size: 0.86rem;
+  line-height: 1.25;
+}
+
+.emptyInline {
+  border: 1px dashed rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  color: #93a7ae;
+  padding: 1rem;
+}
+
+.patientWorkspace {
+  display: grid;
+  gap: 1rem;
+  min-height: 650px;
+  padding: 1rem;
+}
+
+.emptyWorkspace {
+  align-content: center;
+  color: #93a7ae;
+  justify-items: center;
+  text-align: center;
+}
+
+.emptyWorkspace p {
+  max-width: 420px;
+}
+
+.patientHeader {
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.eyebrow {
+  color: #77e0d6;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tabs {
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  display: grid;
+  gap: 0.4rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 0.4rem;
+}
+
+.tabs button {
+  background: transparent;
+  color: #b8c8ce;
+  min-height: 40px;
+}
+
+.tabs button.active {
+  background: #17a99a;
+  color: #ffffff;
+}
+
+.tabs span {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+}
+
+.scanWorkspace {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(260px, 360px) minmax(0, 1fr);
+  min-height: 0;
+}
+
+.scanList {
+  display: grid;
+  gap: 0.7rem;
+  max-height: 620px;
+  overflow: auto;
+  padding-right: 0.25rem;
+}
+
+.scanListItem {
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  justify-content: flex-start;
+  padding: 0.55rem;
+  text-align: left;
+  width: 100%;
+}
+
+.scanListItem.active {
+  background: rgba(23, 169, 154, 0.17);
+  border-color: rgba(119, 224, 214, 0.5);
+}
+
+.scanListItem img {
+  aspect-ratio: 1;
+  background: #101c23;
+  border-radius: 8px;
+  object-fit: cover;
+  width: 72px;
+}
+
+.scanListItem span {
+  display: grid;
+}
+
+.scanDetail,
+.uploadTab,
+.detailsGrid,
+.emptyPanel {
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.scanDetail {
+  display: grid;
+  gap: 1rem;
+}
+
+.scanDetail > img {
+  background: #101c23;
+  border-radius: 8px;
+  max-height: 430px;
+  object-fit: contain;
+  width: 100%;
+}
+
+.scanMeta {
+  color: #93a7ae;
+  flex-wrap: wrap;
+  font-size: 0.88rem;
+}
+
+.probabilities {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.probability {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.bar {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  height: 9px;
+  overflow: hidden;
+}
+
+.bar span {
+  background: linear-gradient(90deg, #17a99a, #277ef5);
+  display: block;
+  height: 100%;
+}
+
+.uploadTab {
+  display: grid;
+  gap: 1rem;
+  max-width: 780px;
+}
+
+.fileDrop {
+  align-items: center;
+  background:
+    linear-gradient(rgba(10, 22, 29, 0.9), rgba(10, 22, 29, 0.9)),
+    repeating-linear-gradient(135deg, rgba(119, 224, 214, 0.32) 0 8px, rgba(39, 126, 245, 0.28) 8px 16px);
+  border: 1px dashed rgba(119, 224, 214, 0.52);
+  border-radius: 8px;
+  color: #d9f9f6;
+  cursor: pointer;
+  display: grid;
+  gap: 0.45rem;
+  justify-items: center;
+  min-height: 210px;
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.fileDrop input {
+  cursor: pointer;
+}
+
+.uploadCta {
+  min-height: 50px;
+}
+
+.detailsGrid {
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.info {
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #77e0d6;
+  padding: 0.85rem;
+}
+
+.info.wide {
+  grid-column: 1 / -1;
+}
+
+.info strong {
+  color: #eef8f7;
+  display: block;
+  font-size: 0.95rem;
+  overflow-wrap: anywhere;
+}
+
+.emptyPanel {
+  align-content: center;
+  color: #93a7ae;
+  display: grid;
+  justify-items: center;
+  min-height: 350px;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .workspace,
+  .scanWorkspace {
+    grid-template-columns: 1fr;
+  }
+
+  .patientCards {
+    max-height: 360px;
+  }
+}
+
+@media (max-width: 760px) {
+  .topbar,
+  .patientHeader {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .toolbar,
+  .patientActions {
+    justify-content: flex-start;
+  }
+
+  .statsGrid,
+  .detailsGrid,
+  .fieldRow {
+    grid-template-columns: 1fr;
+  }
+
+  .tabs {
+    grid-template-columns: 1fr;
+  }
+}

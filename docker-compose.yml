@@ -1,0 +1,16 @@
+services:
+  medscans:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: medscans:latest
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Default: Data Source=/data/app.db
+      BrainTumorModel__OnnxPath: /app/Models/brain-tumor-resnet50.onnx
+    volumes:
+      - ./app.db:/data/app.db
+      - ./Models:/app/Models:ro
