@@ -36,7 +36,7 @@ The app lets you:
 ## Project Structure
 
 ```text
-MedScans/
+path/to/MedScans/
   backend/
     Api/                       API endpoints
     Infrastructure/            EF Core DbContext and persistence helpers
@@ -194,7 +194,7 @@ You need two terminals: one for the API and one for the frontend.
 From the backend directory:
 
 ```powershell
-cd mirai\backend
+cd backend
 dotnet run --urls http://localhost:5091
 ```
 
@@ -216,7 +216,7 @@ Expected response:
 ### Terminal 2: Start the Frontend
 
 ```powershell
-cd mirai\frontend
+cd frontend
 npm run dev
 ```
 
@@ -240,13 +240,13 @@ frontend/vite.config.js
 
 ## Build for Production
 
-Build the backend (from the root path):
+Build the backend (from the project root):
 
 ```powershell
 dotnet build MedScans.sln
 ```
 
-Run backend tests(from the root path):
+Run backend tests (from the root path):
 
 ```powershell
 dotnet test MedScans.sln
@@ -255,7 +255,7 @@ dotnet test MedScans.sln
 Build the frontend:
 
 ```powershell
-cd mirai\frontend
+cd frontend
 npm run build
 ```
 

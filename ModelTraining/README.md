@@ -24,7 +24,7 @@ https://www.kaggle.com/datasets/masoudnickparvar/brain-tumor-mri-dataset/data
 After downloading and extracting it, place the dataset under:
 
 ```text
-mirai/datasets/brain-mri/
+datasets/brain-mri/
   Training/
     glioma/
     meningioma/
@@ -50,7 +50,7 @@ python ModelTraining/train_resnet50.py --epochs 10 --batch-size 4
 By default, the script reads:
 
 ```text
-mirai/datasets/brain-mri
+datasets/brain-mri
 ```
 
 and writes:
