@@ -1,16 +1,17 @@
 # MedScans Frontend
 
-Run the API from the project root:
+Start the API in one terminal from the repository root:
 
 ```powershell
+cd backend
 dotnet run --launch-profile http
 ```
 
-Run the React app from this folder:
+Start the React app in a second terminal from this `frontend` folder:
 
 ```powershell
-npm.cmd install
-npm.cmd start
+npm install
+npm run dev
 ```
 
 Open:
