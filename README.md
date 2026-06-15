@@ -1,6 +1,6 @@
-# MedScans
+# Mirai
 
-MedScans is a patient-centered brain MRI classification app. It combines an ASP.NET Core API, SQLite storage, an ONNX brain tumor classifier, and a React/Vite frontend.
+Mirai is a patient-centered brain MRI classification app. It combines an ASP.NET Core API, SQLite storage, an ONNX brain tumor classifier, and a React/Vite frontend.
 
 The app lets you:
 
