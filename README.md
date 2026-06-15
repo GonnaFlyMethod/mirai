@@ -308,17 +308,6 @@ Build only:
 docker build -t medscans .
 ```
 
-Run the image manually:
-
-```powershell
-docker run --rm -p 8080:8080 `
-  -e ConnectionStrings__Default="Data Source=/data/app.db" `
-  -e BrainTumorModel__OnnxPath="/app/Models/brain-tumor-resnet50.onnx" `
-  -v "${PWD}\backend\app.db:/data/app.db" `
-  -v "${PWD}\backend\Models:/app/Models:ro" `
-  medscans
-```
-
 ## How to Use the App
 
 1. Start the API and frontend.
