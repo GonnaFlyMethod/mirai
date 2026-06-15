@@ -10,23 +10,23 @@ public sealed class PatientTests
         var before = DateTime.UtcNow;
 
         var patient = Patient.Create(
-            "  Ada  ",
-            "  Lovelace  ",
+            "  Emily  ",
+            "  Carter  ",
             new DateOnly(1995, 12, 10),
             "  Female  ",
-            "  ada@example.com  ",
-            "  +48 123 456 789  ",
-            "  Warsaw  ");
+            "  emily.carter@example.com  ",
+            "  +1 (555) 013-4829  ",
+            "  125 Maple Street, Austin, TX 78701  ");
 
         var after = DateTime.UtcNow;
 
         Assert.NotEqual(Guid.Empty, patient.Id);
-        Assert.Equal("Ada", patient.FirstName);
-        Assert.Equal("Lovelace", patient.LastName);
+        Assert.Equal("Emily", patient.FirstName);
+        Assert.Equal("Carter", patient.LastName);
         Assert.Equal("Female", patient.Gender);
-        Assert.Equal("ada@example.com", patient.Email);
-        Assert.Equal("+48 123 456 789", patient.PhoneNumber);
-        Assert.Equal("Warsaw", patient.Address);
+        Assert.Equal("emily.carter@example.com", patient.Email);
+        Assert.Equal("+1 (555) 013-4829", patient.PhoneNumber);
+        Assert.Equal("125 Maple Street, Austin, TX 78701", patient.Address);
         Assert.InRange(patient.CreatedAt, before, after);
         Assert.Equal(patient.CreatedAt, patient.UpdatedAt);
     }
