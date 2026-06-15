@@ -1,6 +1,6 @@
-# MedScans
+# Mirai
 
-MedScans is a patient-centered brain MRI classification app. It combines an ASP.NET Core API, SQLite storage, an ONNX brain tumor classifier, and a React/Vite frontend.
+Mirai is a patient-centered brain MRI classification app. It combines an ASP.NET Core API, SQLite storage, an ONNX brain tumor classifier, and a React/Vite frontend.
 
 The app lets you:
 
@@ -301,8 +301,6 @@ Stop the container:
 ```powershell
 docker compose down
 ```
-
-So the container uses your local SQLite database and local ONNX model.
 
 Build only:
 
