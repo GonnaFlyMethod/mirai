@@ -313,15 +313,6 @@ Stop the container:
 docker compose down
 ```
 
-The compose file maps:
-
-```text
-./backend/app.db  -> /data/app.db
-./backend/Models  -> /app/Models
-```
-
-So the container uses your local SQLite database and local ONNX model.
-
 Build only:
 
 ```powershell
