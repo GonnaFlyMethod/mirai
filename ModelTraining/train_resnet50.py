@@ -10,9 +10,47 @@ from torchvision import datasets, models, transforms
 
 
 LABELS = ["glioma", "meningioma", "notumor", "pituitary"]
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_DATASET = PROJECT_ROOT / "datasets" / "brain-mri"
+DEFAULT_OUTPUT = PROJECT_ROOT / "backend" / "Models"
+
+
+def validate_dataset_root(dataset_root: Path):
+    missing_paths = []
+
+    for split in ["Training", "Testing"]:
+        for label in LABELS:
+            class_path = dataset_root / split / label
+            if not class_path.is_dir():
+                missing_paths.append(class_path)
+
+    if missing_paths:
+        expected_structure = "\n".join(
+            [
+                str(dataset_root),
+                "  Training/",
+                "    glioma/",
+                "    meningioma/",
+                "    notumor/",
+                "    pituitary/",
+                "  Testing/",
+                "    glioma/",
+                "    meningioma/",
+                "    notumor/",
+                "    pituitary/",
+            ]
+        )
+        missing_preview = "\n".join(f"- {path}" for path in missing_paths[:8])
+        raise FileNotFoundError(
+            "Brain MRI dataset is missing or has the wrong folder structure.\n"
+            f"Expected:\n{expected_structure}\n\n"
+            f"Missing paths:\n{missing_preview}"
+        )
 
 
 def build_loaders(dataset_root: Path, batch_size: int):
+    validate_dataset_root(dataset_root)
+
     transform = transforms.Compose(
         [
             transforms.Resize((224, 224)),
@@ -108,23 +146,26 @@ def export_onnx(model, output_path: Path, device: torch.device):
 
 def main():
     parser = argparse.ArgumentParser(description="Train and export the brain MRI ResNet50 model.")
-    parser.add_argument("--dataset", type=Path, required=True)
-    parser.add_argument("--output", type=Path, default=Path("Models"))
+    parser.add_argument("--dataset", type=Path, default=DEFAULT_DATASET)
+    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--epochs", type=int, default=10)
     parser.add_argument("--batch-size", type=int, default=32)
     parser.add_argument("--learning-rate", type=float, default=0.001)
     args = parser.parse_args()
 
-    args.output.mkdir(parents=True, exist_ok=True)
+    dataset_root = args.dataset.resolve()
+    output_root = args.output.resolve()
+
+    output_root.mkdir(parents=True, exist_ok=True)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    train_loader, validation_loader, test_loader = build_loaders(args.dataset, args.batch_size)
+    train_loader, validation_loader, test_loader = build_loaders(dataset_root, args.batch_size)
     model = build_model(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
 
     best_validation_accuracy = 0.0
-    weights_path = args.output / "brain-tumor-resnet50.pth"
-    onnx_path = args.output / "brain-tumor-resnet50.onnx"
+    weights_path = output_root / "brain-tumor-resnet50.pth"
+    onnx_path = output_root / "brain-tumor-resnet50.onnx"
 
     for epoch in range(1, args.epochs + 1):
         train_loss, train_accuracy = run_epoch(model, train_loader, criterion, optimizer, device)
@@ -152,7 +193,7 @@ def main():
         "onnxPath": str(onnx_path),
         "weightsPath": str(weights_path),
     }
-    (args.output / "brain-tumor-resnet50.metadata.json").write_text(json.dumps(metadata, indent=2))
+    (output_root / "brain-tumor-resnet50.metadata.json").write_text(json.dumps(metadata, indent=2))
     print(json.dumps(metadata, indent=2))
 
 

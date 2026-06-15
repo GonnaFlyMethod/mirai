@@ -28,6 +28,14 @@ project.lock.json
 project.fragment.lock.json
 artifacts/
 
+# Python
+__pycache__/
+*.py[cod]
+
+# Frontend dependencies/build output
+frontend/node_modules/
+frontend/dist/
+
 # ASP.NET Scaffolding
 ScaffoldingReadMe.txt
 
@@ -44,6 +52,14 @@ ScaffoldingReadMe.txt
 ~$*
 *~
 CodeCoverage/
+datasets/
+!datasets/
+!datasets/brain-mri/
+!datasets/brain-mri/Training/
+!datasets/brain-mri/Testing/
+!datasets/brain-mri/Training/*/
+!datasets/brain-mri/Testing/*/
+!datasets/brain-mri/**/.gitkeep
 *.db-shm
 *.db-wal
 

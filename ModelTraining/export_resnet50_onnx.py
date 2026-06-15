@@ -7,10 +7,15 @@ import torch
 from train_resnet50 import LABELS, build_model, export_onnx
 
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_WEIGHTS = PROJECT_ROOT / "backend" / "Models" / "brain-tumor-resnet50.pth"
+DEFAULT_ONNX = PROJECT_ROOT / "backend" / "Models" / "brain-tumor-resnet50.onnx"
+
+
 def main():
     parser = argparse.ArgumentParser(description="Export a trained brain MRI ResNet50 checkpoint to ONNX.")
-    parser.add_argument("--weights", type=Path, default=Path("Models/brain-tumor-resnet50.pth"))
-    parser.add_argument("--onnx", type=Path, default=Path("Models/brain-tumor-resnet50.onnx"))
+    parser.add_argument("--weights", type=Path, default=DEFAULT_WEIGHTS)
+    parser.add_argument("--onnx", type=Path, default=DEFAULT_ONNX)
     args = parser.parse_args()
 
     if not args.weights.exists():
