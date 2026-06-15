@@ -1,20 +1,24 @@
 # Brain MRI Model Training
 
-The cloned reference project is in `External/brain-mri-analysis`. Its notebook trains a four-class ResNet50 classifier with these labels:
+The training script trains a four-class ResNet50 classifier with these labels:
 
 - `glioma`
 - `meningioma`
 - `notumor`
 - `pituitary`
 
-This project consumes an ONNX export from C# at `Models/brain-tumor-resnet50.onnx`.
+The API loads the exported ONNX model from:
+
+```text
+backend/Models/brain-tumor-resnet50.onnx
+```
 
 ## Dataset
 
-Download the Kaggle dataset from the reference README and place it under:
+Place the dataset under:
 
 ```text
-External/brain-mri-analysis/dataset
+datasets/brain-mri/
   Training/
     glioma/
     meningioma/
@@ -27,20 +31,32 @@ External/brain-mri-analysis/dataset
     pituitary/
 ```
 
+Each class folder should contain MRI image files for that class.
+
 ## Train and Export
 
-Create the Conda environment from the cloned repo:
+From the project root:
 
 ```bash
-cd External/brain-mri-analysis
-conda env create -f environment.yml
-conda activate brain_mri
+python ModelTraining/train_resnet50.py --epochs 10
 ```
 
-Then run the training/export helper from this project root:
+By default, the script reads:
+
+```text
+datasets/brain-mri
+```
+
+and writes:
+
+```text
+backend/Models/brain-tumor-resnet50.pth
+backend/Models/brain-tumor-resnet50.onnx
+backend/Models/brain-tumor-resnet50.metadata.json
+```
+
+You can override the paths if needed:
 
 ```bash
-python ModelTraining/train_resnet50.py --dataset External/brain-mri-analysis/dataset --output Models --epochs 10
+python ModelTraining/train_resnet50.py --dataset path/to/dataset --output backend/Models --epochs 10
 ```
-
-The API will automatically load `Models/brain-tumor-resnet50.onnx` on the first scan analysis request.

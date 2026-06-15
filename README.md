@@ -55,6 +55,9 @@ MedScans/
   tests/
     MedScans.Tests/            Backend unit tests
   frontend/                    React/Vite frontend
+  ModelTraining/               Python training/export scripts
+  datasets/
+    brain-mri/                 Local training dataset, not committed
   media/                       README screenshots
   MedScans.sln                 Backend solution and tests
 ```
@@ -128,6 +131,34 @@ This path is configured in:
 ```
 
 If the ONNX file is missing, scan classification will fail. Keep the model file in `backend/Models/` or update `backend/appsettings.json` to point to the correct location.
+
+## Training Dataset
+
+Model training expects a four-class brain MRI dataset in this local folder:
+
+```text
+datasets/brain-mri/
+  Training/
+    glioma/
+    meningioma/
+    notumor/
+    pituitary/
+  Testing/
+    glioma/
+    meningioma/
+    notumor/
+    pituitary/
+```
+
+Each class folder should contain MRI image files for that class.
+
+Train and export the model from the project root:
+
+```powershell
+python ModelTraining/train_resnet50.py --epochs 10
+```
+
+By default, the script reads `datasets/brain-mri` and writes the generated `.pth`, `.onnx`, and metadata files to `backend/Models`.
 
 ## Database
 
