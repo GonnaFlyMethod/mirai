@@ -12,13 +12,13 @@ RUN npm run build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY MedScans.csproj ./
-RUN dotnet restore
+COPY backend/MedScans.csproj backend/
+RUN dotnet restore backend/MedScans.csproj
 
-COPY . ./
-COPY --from=frontend /src/frontend/dist ./wwwroot
+COPY backend/ backend/
+COPY --from=frontend /src/frontend/dist /src/backend/wwwroot
 
-RUN dotnet publish MedScans.csproj -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish backend/MedScans.csproj -c Release -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app

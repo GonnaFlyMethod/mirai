@@ -2,11 +2,14 @@
 .vs
 bin
 obj
+**/bin
+**/obj
 
 frontend/node_modules
 frontend/dist
 frontend/.vite
 frontend/*run*.log
+backend/wwwroot
 
 External
 ModelTraining
@@ -14,5 +17,8 @@ NewFolder
 
 *.log
 *.err.log
+backend/app.db
+backend/app.db-shm
+backend/app.db-wal
 app.db-shm
 app.db-wal

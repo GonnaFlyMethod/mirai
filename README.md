@@ -39,20 +39,24 @@ The app lets you:
 
 ```text
 MedScans/
-  Api/                         Minimal API endpoints
-  Infrastructure/              EF Core DbContext
-  Patients/                    Patient entity, repository, service
-  Scans/                       Scan entity, repository, service, ONNX analyzer
-  Models/
-    brain-tumor-resnet50.onnx  Runtime model used by the API
-    brain-tumor-resnet50.pth   PyTorch checkpoint/reference model
-    brain-tumor-resnet50.metadata.json
+  backend/
+    Api/                       Minimal API endpoints
+    Infrastructure/            EF Core DbContext and persistence helpers
+    Patients/                  Patient entity, repository, service
+    Scans/                     Scan entity, repository, service, ONNX analyzer
+    Models/
+      brain-tumor-resnet50.onnx
+      brain-tumor-resnet50.pth
+      brain-tumor-resnet50.metadata.json
+    appsettings.json           API configuration
+    Program.cs                 ASP.NET Core startup
+    MedScans.csproj            Backend project file
+    app.db                     SQLite database
+  tests/
+    MedScans.Tests/            Backend unit tests
   frontend/                    React/Vite frontend
   media/                       README screenshots
-  app.db                       SQLite database
-  appsettings.json             API configuration
-  Program.cs                   ASP.NET Core startup
-  MedScans.csproj              Backend project file
+  MedScans.sln                 Backend solution and tests
 ```
 
 ## Prerequisites
@@ -82,7 +86,7 @@ cd A:\BrainTumor\TumorDetection\MedScans
 Restore backend dependencies:
 
 ```powershell
-dotnet restore
+dotnet restore MedScans.sln
 ```
 
 Install frontend dependencies:
@@ -112,7 +116,7 @@ The frontend uses:
 The API expects the ONNX model at:
 
 ```text
-Models/brain-tumor-resnet50.onnx
+backend/Models/brain-tumor-resnet50.onnx
 ```
 
 This path is configured in:
@@ -123,17 +127,17 @@ This path is configured in:
 }
 ```
 
-If the ONNX file is missing, scan classification will fail. Keep the model file in `Models/` or update `appsettings.json` to point to the correct location.
+If the ONNX file is missing, scan classification will fail. Keep the model file in `backend/Models/` or update `backend/appsettings.json` to point to the correct location.
 
 ## Database
 
 The project uses SQLite:
 
 ```text
-app.db
+backend/app.db
 ```
 
-The connection string is configured in `appsettings.json`:
+The connection string is configured in `backend/appsettings.json`:
 
 ```json
 "ConnectionStrings": {
@@ -141,7 +145,9 @@ The connection string is configured in `appsettings.json`:
 }
 ```
 
-The API calls `EnsureCreatedAsync()` on startup, so if `app.db` does not exist, SQLite tables are created automatically.
+Run the API from the `backend/` directory so `Data Source=app.db` points to `backend/app.db`.
+
+The API calls `EnsureCreatedAsync()` on startup, so if `backend/app.db` does not exist, SQLite tables are created automatically.
 
 Main tables:
 
@@ -162,10 +168,10 @@ You need two terminals: one for the API and one for the frontend.
 
 ### Terminal 1: Start the API
 
-From the project root:
+From the backend directory:
 
 ```powershell
-cd A:\BrainTumor\TumorDetection\MedScans
+cd A:\BrainTumor\TumorDetection\MedScans\backend
 dotnet run --urls http://localhost:5091
 ```
 
@@ -215,7 +221,14 @@ Build the backend:
 
 ```powershell
 cd A:\BrainTumor\TumorDetection\MedScans
-dotnet build
+dotnet build MedScans.sln
+```
+
+Run backend tests:
+
+```powershell
+cd A:\BrainTumor\TumorDetection\MedScans
+dotnet test MedScans.sln
 ```
 
 Build the frontend:
@@ -272,8 +285,8 @@ docker compose down
 The compose file maps:
 
 ```text
-./app.db  -> /data/app.db
-./Models  -> /app/Models
+./backend/app.db  -> /data/app.db
+./backend/Models  -> /app/Models
 ```
 
 So the container uses your local SQLite database and local ONNX model.
@@ -290,8 +303,8 @@ Run the image manually:
 docker run --rm -p 8080:8080 `
   -e ConnectionStrings__Default="Data Source=/data/app.db" `
   -e BrainTumorModel__OnnxPath="/app/Models/brain-tumor-resnet50.onnx" `
-  -v "${PWD}\app.db:/data/app.db" `
-  -v "${PWD}\Models:/app/Models:ro" `
+  -v "${PWD}\backend\app.db:/data/app.db" `
+  -v "${PWD}\backend\Models:/app/Models:ro" `
   medscans
 ```
 
@@ -406,8 +419,9 @@ The UI is responsive. If Chrome or Brave stacks the layout differently, check:
 
 ## Development Notes
 
-- Backend source is in C# under `Api/`, `Patients/`, `Scans/`, and `Infrastructure/`.
-- Frontend source is in `frontend/src/main.jsx` and `frontend/src/styles.css`.
+- Backend source is in C# under `backend/Api/`, `backend/Patients/`, `backend/Scans/`, and `backend/Infrastructure/`.
+- Backend unit tests are in `tests/MedScans.Tests/`.
+- Frontend source is organized under `frontend/src/App.jsx`, `frontend/src/components/`, `frontend/src/features/`, and `frontend/src/api/`.
 - The app stores uploaded scan images as blobs in SQLite.
 - The classifier result stores predicted label, confidence, class probabilities, status, analyzer version, and optional error message.
 
