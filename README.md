@@ -10,8 +10,6 @@ The app lets you:
 - Classify the scan using the local ONNX model.
 - Review the predicted tumor class, confidence score, probability breakdown, and scan image.
 
-> This project is for development and demonstration purposes. It is not a medical device and should not be used for clinical diagnosis.
-
 ## Screenshots
 
 ### Patient scan history and classification result
@@ -38,9 +36,9 @@ The app lets you:
 ## Project Structure
 
 ```text
-MedScans/
+path/to/MedScans/
   backend/
-    Api/                       Minimal API endpoints
+    Api/                       API endpoints
     Infrastructure/            EF Core DbContext and persistence helpers
     Patients/                  Patient entity, repository, service
     Scans/                     Scan entity, repository, service, ONNX analyzer
@@ -57,7 +55,7 @@ MedScans/
   frontend/                    React/Vite frontend
   ModelTraining/               Python training/export scripts
   datasets/
-    brain-mri/                 Local training dataset, not committed
+    brain-mri/                 Local training dataset
   media/                       README screenshots
   MedScans.sln                 Backend solution and tests
 ```
@@ -81,12 +79,6 @@ npm --version
 ## Install Dependencies
 
 From the project root:
-
-```powershell
-cd A:\BrainTumor\TumorDetection\MedScans
-```
-
-Restore backend dependencies:
 
 ```powershell
 dotnet restore MedScans.sln
@@ -122,19 +114,17 @@ The API expects the ONNX model at:
 backend/Models/brain-tumor-resnet50.onnx
 ```
 
-This path is configured in:
-
-```json
-"BrainTumorModel": {
-  "OnnxPath": "Models/brain-tumor-resnet50.onnx"
-}
-```
-
 If the ONNX file is missing, scan classification will fail. Keep the model file in `backend/Models/` or update `backend/appsettings.json` to point to the correct location.
 
 ## Training Dataset
 
-Model training expects a four-class brain MRI dataset in this local folder:
+Use the Kaggle **Brain Tumor MRI Dataset** by Masoud Nickparvar:
+
+```text
+https://www.kaggle.com/datasets/masoudnickparvar/brain-tumor-mri-dataset/data
+```
+
+After downloading and extracting it, place the dataset in this local folder:
 
 ```text
 datasets/brain-mri/
@@ -155,10 +145,12 @@ Each class folder should contain MRI image files for that class.
 Train and export the model from the project root:
 
 ```powershell
-python ModelTraining/train_resnet50.py --epochs 10
+python ModelTraining/train_resnet50.py --epochs 10 --batch-size 4
 ```
 
 By default, the script reads `datasets/brain-mri` and writes the generated `.pth`, `.onnx`, and metadata files to `backend/Models`.
+
+The smaller batch size is a safer default for Windows CPU training. If you train on a machine with more memory or a CUDA GPU, you can try a larger value such as `--batch-size 16` or `--batch-size 32`.
 
 ## Database
 
@@ -202,7 +194,7 @@ You need two terminals: one for the API and one for the frontend.
 From the backend directory:
 
 ```powershell
-cd A:\BrainTumor\TumorDetection\MedScans\backend
+cd backend
 dotnet run --urls http://localhost:5091
 ```
 
@@ -224,7 +216,7 @@ Expected response:
 ### Terminal 2: Start the Frontend
 
 ```powershell
-cd A:\BrainTumor\TumorDetection\MedScans\frontend
+cd frontend
 npm run dev
 ```
 
@@ -248,24 +240,22 @@ frontend/vite.config.js
 
 ## Build for Production
 
-Build the backend:
+Build the backend (from the project root):
 
 ```powershell
-cd A:\BrainTumor\TumorDetection\MedScans
 dotnet build MedScans.sln
 ```
 
-Run backend tests:
+Run backend tests (from the root path):
 
 ```powershell
-cd A:\BrainTumor\TumorDetection\MedScans
 dotnet test MedScans.sln
 ```
 
 Build the frontend:
 
 ```powershell
-cd A:\BrainTumor\TumorDetection\MedScans\frontend
+cd frontend
 npm run build
 ```
 
@@ -288,10 +278,9 @@ Prerequisites:
 
 - Docker Desktop
 
-Build and run with Docker Compose:
+Build and run with Docker Compose (from the root):
 
 ```powershell
-cd A:\BrainTumor\TumorDetection\MedScans
 docker compose up --build
 ```
 
@@ -388,64 +377,6 @@ POST /api/scans/analyze
 image     MRI image file
 patientId selected patient id
 ```
-
-## Common Issues
-
-### NuGet warning NU1900
-
-You may see:
-
-```text
-warning NU1900: Error occurred while getting package vulnerability data
-```
-
-This usually means NuGet cannot reach:
-
-```text
-https://api.nuget.org/v3/index.json
-```
-
-The build can still succeed. Check internet access, firewall, VPN, or proxy settings.
-
-### Frontend cannot reach API
-
-Make sure the API is running on:
-
-```text
-http://localhost:5091
-```
-
-Then restart the frontend:
-
-```powershell
-cd frontend
-npm run dev
-```
-
-### Uploaded scan does not appear under a patient
-
-New uploads should be linked automatically because the frontend sends `patientId` and the API reads it from the multipart form. If a scan does not appear:
-
-1. Refresh the page.
-2. Confirm the API is running the latest code.
-3. Confirm the scan row in SQLite has a non-null `PatientId`.
-
-### Browser layout looks different
-
-The UI is responsive. If Chrome or Brave stacks the layout differently, check:
-
-- Browser zoom is `100%`.
-- Window width is large enough.
-- DevTools or side panels are not reducing viewport width.
-- Hard refresh with `Ctrl+F5`.
-
-## Development Notes
-
-- Backend source is in C# under `backend/Api/`, `backend/Patients/`, `backend/Scans/`, and `backend/Infrastructure/`.
-- Backend unit tests are in `tests/MedScans.Tests/`.
-- Frontend source is organized under `frontend/src/App.jsx`, `frontend/src/components/`, `frontend/src/features/`, and `frontend/src/api/`.
-- The app stores uploaded scan images as blobs in SQLite.
-- The classifier result stores predicted label, confidence, class probabilities, status, analyzer version, and optional error message.
 
 ## License
 
