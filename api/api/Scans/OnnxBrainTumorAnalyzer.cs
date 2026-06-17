@@ -8,7 +8,7 @@ namespace MedScans.Scans;
 
 public sealed class OnnxBrainTumorAnalyzer : IBrainTumorAnalyzer, IDisposable
 {
-    private static readonly string[] Labels = ["glioma", "meningioma", "notumor", "pituitary"];
+    private static readonly string[] Labels = { "glioma", "meningioma", "notumor", "pituitary" };
     private readonly string _modelPath;
     private readonly object _sessionLock = new();
     private InferenceSession? _session;
@@ -42,7 +42,7 @@ public sealed class OnnxBrainTumorAnalyzer : IBrainTumorAnalyzer, IDisposable
         var input = Preprocess(imageBytes);
 
         var inputValue = NamedOnnxValue.CreateFromTensor(inputName, input);
-        using var results = session.Run([inputValue]);
+        using var results = session.Run(new[] { inputValue });
         var output = results.First(result => result.Name == outputName).AsEnumerable<float>().ToArray();
         var probabilities = Softmax(output);
         var bestIndex = probabilities
@@ -87,7 +87,7 @@ public sealed class OnnxBrainTumorAnalyzer : IBrainTumorAnalyzer, IDisposable
         using var image = Image.Load<Rgb24>(imageBytes);
         image.Mutate(operation => operation.Resize(224, 224));
 
-        var tensor = new DenseTensor<float>([1, 3, 224, 224]);
+        var tensor = new DenseTensor<float>(new[] { 1, 3, 224, 224 });
 
         for (var y = 0; y < 224; y++)
         {

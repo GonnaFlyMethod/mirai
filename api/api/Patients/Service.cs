@@ -9,8 +9,15 @@ public sealed record CreatePatientRequest(
     string PhoneNumber,
     string Address);
 
-public class PatientService(IPatientRepository repository)
+public class PatientService
 {
+    private readonly IPatientRepository repository;
+
+    public PatientService(IPatientRepository repository)
+    {
+        this.repository = repository;
+    }
+
     public async Task<List<Patient>> GetAll()
     {
         return await repository.GetAllAsync();

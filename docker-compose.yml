@@ -12,5 +12,5 @@ services:
       ConnectionStrings__Default: Data Source=/data/app.db
       BrainTumorModel__OnnxPath: /app/Models/brain-tumor-resnet50.onnx
     volumes:
-      - ./backend/app.db:/data/app.db
-      - ./backend/Models:/app/Models:ro
+      - ./api/api/app.db:/data/app.db
+      - ./api/api/Models:/app/Models:ro

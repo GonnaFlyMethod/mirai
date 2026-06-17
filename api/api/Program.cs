@@ -1,4 +1,4 @@
-using MedScans.Api;
+using MedScans.Endpoints;
 using MedScans.Infrastructure;
 using MedScans.Patients;
 using MedScans.Scans;
@@ -39,6 +39,7 @@ using (var scope = app.Services.CreateScope())
 app.UseCors("Frontend");
 app.UseDefaultFiles();
 app.UseStaticFiles();
+
 
 app.MapGet("/api/health", () => Results.Ok(new
 {

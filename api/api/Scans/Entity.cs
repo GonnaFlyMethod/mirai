@@ -10,7 +10,7 @@ public sealed class BrainScan
 
     public string ContentType { get; set; } = string.Empty;
 
-    public byte[] ImageBytes { get; set; } = [];
+    public byte[] ImageBytes { get; set; } = Array.Empty<byte>();
 
     public DateTime CreatedAt { get; set; }
 

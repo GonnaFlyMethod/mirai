@@ -9,18 +9,18 @@ RUN npm ci
 COPY frontend/ ./
 RUN npm run build
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 
-COPY backend/MedScans.csproj backend/
-RUN dotnet restore backend/MedScans.csproj
+COPY api/api/api.csproj api/api/
+RUN dotnet restore api/api/api.csproj
 
-COPY backend/ backend/
-COPY --from=frontend /src/frontend/dist /src/backend/wwwroot
+COPY api/api/ api/api/
+COPY --from=frontend /src/frontend/dist /src/api/api/wwwroot
 
-RUN dotnet publish backend/MedScans.csproj -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish api/api/api.csproj -c Release -o /app/publish /p:UseAppHost=false
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS runtime
 WORKDIR /app
 
 ENV ASPNETCORE_URLS=http://+:8080
@@ -29,4 +29,4 @@ COPY --from=build /app/publish ./
 
 EXPOSE 8080
 
-ENTRYPOINT ["dotnet", "MedScans.dll"]
+ENTRYPOINT ["dotnet", "api.dll"]

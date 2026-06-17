@@ -1,7 +1,6 @@
 using MedScans.Scans;
-using Microsoft.AspNetCore.Mvc;
 
-namespace MedScans.Api;
+namespace MedScans.Endpoints;
 
 public static class ScanEndpoints
 {
@@ -27,13 +26,38 @@ public static class ScanEndpoints
         });
 
         group.MapPost("/analyze", async (
-            [FromForm] IFormFile image,
-            [FromForm] Guid? patientId,
+            HttpRequest request,
             ScanService service,
             CancellationToken cancellationToken) =>
         {
             try
             {
+                if (!request.HasFormContentType)
+                {
+                    return Results.BadRequest(new { error = "Expected a multipart form upload." });
+                }
+
+                var form = await request.ReadFormAsync(cancellationToken);
+                var image = form.Files.GetFile("image");
+
+                if (image is null)
+                {
+                    return Results.BadRequest(new { error = "A brain MRI image is required." });
+                }
+
+                Guid? patientId = null;
+                var patientIdValue = form["patientId"].FirstOrDefault();
+
+                if (!string.IsNullOrWhiteSpace(patientIdValue))
+                {
+                    if (!Guid.TryParse(patientIdValue, out var parsedPatientId))
+                    {
+                        return Results.BadRequest(new { error = "Patient id must be a valid GUID." });
+                    }
+
+                    patientId = parsedPatientId;
+                }
+
                 await using var stream = image.OpenReadStream();
                 using var buffer = new MemoryStream();
                 await stream.CopyToAsync(buffer, cancellationToken);
@@ -50,7 +74,7 @@ public static class ScanEndpoints
             {
                 return Results.BadRequest(new { error = exception.Message });
             }
-        }).DisableAntiforgery();
+        });
 
         return app;
     }

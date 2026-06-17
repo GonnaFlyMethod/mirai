@@ -11,8 +11,15 @@ public interface IPatientRepository
     Task<bool> DeleteAsync(Guid id);
 }
 
-public class PatientRepository(AppDbContext db) : IPatientRepository
+public class PatientRepository : IPatientRepository
 {
+    private readonly AppDbContext db;
+
+    public PatientRepository(AppDbContext db)
+    {
+        this.db = db;
+    }
+
     public async Task<List<Patient>> GetAllAsync()
     {
         return await db.Patients

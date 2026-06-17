@@ -18,6 +18,6 @@
       0.5
     ]
   },
-  "onnxPath": "Models\\brain-tumor-resnet50.onnx",
-  "weightsPath": "Models\\brain-tumor-resnet50.pth"
+  "onnxPath": "backend\\Models\\brain-tumor-resnet50.onnx",
+  "weightsPath": "backend\\Models\\brain-tumor-resnet50.pth"
 }

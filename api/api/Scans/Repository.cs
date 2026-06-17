@@ -10,8 +10,15 @@ public interface IScanRepository
     Task<BrainScan> CreateAsync(BrainScan scan, CancellationToken cancellationToken);
 }
 
-public sealed class Repository(AppDbContext db) : IScanRepository
+public sealed class Repository : IScanRepository
 {
+    private readonly AppDbContext db;
+
+    public Repository(AppDbContext db)
+    {
+        this.db = db;
+    }
+
     public async Task<List<BrainScan>> GetAllAsync(CancellationToken cancellationToken)
     {
         return await db.BrainScans
@@ -21,7 +28,7 @@ public sealed class Repository(AppDbContext db) : IScanRepository
 
     public async Task<BrainScan?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        return await db.BrainScans.FindAsync([id], cancellationToken);
+        return await db.BrainScans.FindAsync(new object[] { id }, cancellationToken);
     }
 
     public async Task<BrainScan> CreateAsync(BrainScan scan, CancellationToken cancellationToken)

@@ -4,8 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MedScans.Infrastructure;
 
-public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+public sealed class AppDbContext : DbContext
 {
+    public AppDbContext(DbContextOptions<AppDbContext> options)
+        : base(options)
+    {
+    }
+
     public DbSet<Patient> Patients => Set<Patient>();
 
     public DbSet<BrainScan> BrainScans => Set<BrainScan>();

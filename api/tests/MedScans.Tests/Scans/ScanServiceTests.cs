@@ -59,7 +59,7 @@ public sealed class ScanServiceTests
                 Guid.NewGuid(),
                 "scan.png",
                 "image/png",
-                [1]), CancellationToken.None));
+                new byte[] { 1 }), CancellationToken.None));
 
         Assert.Equal("Selected patient does not exist.", exception.Message);
         Assert.Empty(scanRepository.CreatedScans);
@@ -77,7 +77,7 @@ public sealed class ScanServiceTests
             null,
             "scan.png",
             "image/png",
-            [1, 2, 3]), CancellationToken.None);
+            new byte[] { 1, 2, 3 }), CancellationToken.None);
 
         Assert.Single(scanRepository.CreatedScans);
         Assert.Equal("analysis-failed", response.PredictedLabel);
@@ -100,7 +100,7 @@ public sealed class ScanServiceTests
                 null,
                 "scan.png",
                 "image/png",
-                [1]), CancellationToken.None));
+                new byte[] { 1 }), CancellationToken.None));
 
         Assert.Empty(scanRepository.CreatedScans);
     }
@@ -115,7 +115,7 @@ public sealed class ScanServiceTests
                 null,
                 "scan.png",
                 "image/png",
-                []), CancellationToken.None));
+                Array.Empty<byte>()), CancellationToken.None));
 
         Assert.Equal("A brain MRI image is required.", exception.Message);
     }
@@ -148,7 +148,7 @@ public sealed class ScanServiceTests
                 null,
                 "scan.png",
                 contentType,
-                [1]), CancellationToken.None));
+                new byte[] { 1 }), CancellationToken.None));
 
         Assert.Equal("Supported image types are JPEG, PNG, BMP, and WEBP.", exception.Message);
     }
@@ -167,7 +167,7 @@ public sealed class ScanServiceTests
             null,
             "scan.png",
             contentType.ToUpperInvariant(),
-            [1]), CancellationToken.None);
+            new byte[] { 1 }), CancellationToken.None);
 
         Assert.Single(scanRepository.CreatedScans);
     }
@@ -192,7 +192,7 @@ public sealed class ScanServiceTests
 
     private sealed class FakeScanRepository : IScanRepository
     {
-        private readonly List<BrainScan> _scans = [];
+        private readonly List<BrainScan> _scans = new();
 
         public IReadOnlyList<BrainScan> CreatedScans => _scans;
 
@@ -213,9 +213,14 @@ public sealed class ScanServiceTests
         }
     }
 
-    private sealed class FakePatientRepository(params Patient[] patients) : IPatientRepository
+    private sealed class FakePatientRepository : IPatientRepository
     {
-        private readonly List<Patient> _patients = patients.ToList();
+        private readonly List<Patient> _patients;
+
+        public FakePatientRepository(params Patient[] patients)
+        {
+            _patients = patients.ToList();
+        }
 
         public Task<List<Patient>> GetAllAsync()
         {

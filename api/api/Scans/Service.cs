@@ -23,11 +23,12 @@ public sealed record ScanResponse(
     string? ErrorMessage,
     string ImageUrl);
 
-public sealed class ScanService(
-    IScanRepository scanRepository,
-    IPatientRepository patientRepository,
-    IBrainTumorAnalyzer analyzer)
+public sealed class ScanService
 {
+    private readonly IScanRepository scanRepository;
+    private readonly IPatientRepository patientRepository;
+    private readonly IBrainTumorAnalyzer analyzer;
+
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private static readonly HashSet<string> SupportedContentTypes = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -36,6 +37,16 @@ public sealed class ScanService(
         "image/bmp",
         "image/webp"
     };
+
+    public ScanService(
+        IScanRepository scanRepository,
+        IPatientRepository patientRepository,
+        IBrainTumorAnalyzer analyzer)
+    {
+        this.scanRepository = scanRepository;
+        this.patientRepository = patientRepository;
+        this.analyzer = analyzer;
+    }
 
     public async Task<IReadOnlyList<ScanResponse>> GetAllAsync(CancellationToken cancellationToken)
     {

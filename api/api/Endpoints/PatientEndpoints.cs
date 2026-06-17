@@ -1,6 +1,6 @@
 using MedScans.Patients;
 
-namespace MedScans.Api;
+namespace MedScans.Endpoints;
 
 public static class PatientEndpoints
 {

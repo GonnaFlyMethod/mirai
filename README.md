@@ -26,7 +26,7 @@ The app lets you:
 
 ## Tech Stack
 
-- Backend: ASP.NET Core 8
+- Backend: ASP.NET Core 7
 - Database: SQLite
 - Machine learning inference: ONNX Runtime
 - Image preprocessing: SixLabors ImageSharp
@@ -37,34 +37,57 @@ The app lets you:
 
 ```text
 path/to/MedScans/
-  backend/
-    Api/                       API endpoints
-    Infrastructure/            EF Core DbContext and persistence helpers
-    Patients/                  Patient entity, repository, service
-    Scans/                     Scan entity, repository, service, ONNX analyzer
-    Models/
-      brain-tumor-resnet50.onnx
-      brain-tumor-resnet50.pth
-      brain-tumor-resnet50.metadata.json
-    appsettings.json           API configuration
-    Program.cs                 ASP.NET Core startup
-    MedScans.csproj            Backend project file
-    app.db                     SQLite database
-  tests/
-    MedScans.Tests/            Backend unit tests
+  api/
+    api.sln                    Backend API and test solution
+    api/
+      Endpoints/               API endpoints
+      Infrastructure/          EF Core DbContext and persistence helpers
+      Patients/                Patient entity, repository, service
+      Scans/                   Scan entity, repository, service, ONNX analyzer
+      Models/
+        brain-tumor-resnet50.onnx
+        brain-tumor-resnet50.pth
+        brain-tumor-resnet50.metadata.json
+      appsettings.json         API configuration
+      Program.cs               ASP.NET Core startup
+      api.csproj               Backend project file
+      app.db                   SQLite database
+    tests/
+      MedScans.Tests/          Backend unit tests
   frontend/                    React/Vite frontend
   ModelTraining/               Python training/export scripts
   datasets/
     brain-mri/                 Local training dataset
   media/                       README screenshots
-  MedScans.sln                 Backend solution and tests
+  MedScans.sln                 Root solution for API and tests
 ```
+
+## Solutions
+
+Open this solution for backend development and backend tests:
+
+```text
+api/api.sln
+```
+
+It includes:
+
+- `api/api/api.csproj`
+- `api/tests/MedScans.Tests/MedScans.Tests.csproj`
+
+The root solution is also kept up to date:
+
+```text
+MedScans.sln
+```
+
+Use `api/api.sln` when you only want to work on the backend and tests.
 
 ## Prerequisites
 
 Install these tools before running the project:
 
-- .NET SDK 8.0 or newer
+- .NET SDK 7.0 or newer
 - Node.js 20 or newer
 - npm, included with Node.js
 
@@ -81,7 +104,7 @@ npm --version
 From the project root:
 
 ```powershell
-dotnet restore MedScans.sln
+dotnet restore api/api.sln
 ```
 
 Install frontend dependencies:
@@ -111,10 +134,10 @@ The frontend uses:
 The API expects the ONNX model at:
 
 ```text
-backend/Models/brain-tumor-resnet50.onnx
+api/api/Models/brain-tumor-resnet50.onnx
 ```
 
-If the ONNX file is missing, scan classification will fail. Keep the model file in `backend/Models/` or update `backend/appsettings.json` to point to the correct location.
+If the ONNX file is missing, scan classification will fail. Keep the model file in `api/api/Models/` or update `api/api/appsettings.json` to point to the correct location.
 
 ## Training Dataset
 
@@ -148,7 +171,7 @@ Train and export the model from the project root:
 python ModelTraining/train_resnet50.py --epochs 10 --batch-size 4
 ```
 
-By default, the script reads `datasets/brain-mri` and writes the generated `.pth`, `.onnx`, and metadata files to `backend/Models`.
+By default, the script reads `datasets/brain-mri` and writes the generated `.pth`, `.onnx`, and metadata files to `api/api/Models`.
 
 The smaller batch size is a safer default for Windows CPU training. If you train on a machine with more memory or a CUDA GPU, you can try a larger value such as `--batch-size 16` or `--batch-size 32`.
 
@@ -157,10 +180,10 @@ The smaller batch size is a safer default for Windows CPU training. If you train
 The project uses SQLite:
 
 ```text
-backend/app.db
+api/api/app.db
 ```
 
-The connection string is configured in `backend/appsettings.json`:
+The connection string is configured in `api/api/appsettings.json`:
 
 ```json
 "ConnectionStrings": {
@@ -168,9 +191,9 @@ The connection string is configured in `backend/appsettings.json`:
 }
 ```
 
-Run the API from the `backend/` directory so `Data Source=app.db` points to `backend/app.db`.
+Run the API from the `api/api/` directory so `Data Source=app.db` points to `api/api/app.db`.
 
-The API calls `EnsureCreatedAsync()` on startup, so if `backend/app.db` does not exist, SQLite tables are created automatically.
+The API calls `EnsureCreatedAsync()` on startup, so if `api/api/app.db` does not exist, SQLite tables are created automatically.
 
 Main tables:
 
@@ -191,10 +214,10 @@ You need two terminals: one for the API and one for the frontend.
 
 ### Terminal 1: Start the API
 
-From the backend directory:
+From the API project directory:
 
 ```powershell
-cd backend
+cd api/api
 dotnet run --urls http://localhost:5091
 ```
 
@@ -240,16 +263,24 @@ frontend/vite.config.js
 
 ## Build for Production
 
-Build the backend (from the project root):
+Build the backend and tests from the `api` folder:
 
 ```powershell
-dotnet build MedScans.sln
+cd api
+dotnet build
 ```
 
-Run backend tests (from the root path):
+Run backend tests from the `api` folder:
 
 ```powershell
-dotnet test MedScans.sln
+cd api
+dotnet test
+```
+
+You can also run the test project directly:
+
+```powershell
+dotnet test tests/MedScans.Tests/MedScans.Tests.csproj
 ```
 
 Build the frontend:
@@ -272,7 +303,7 @@ The project includes a production Docker setup:
 - `Dockerfile` builds the React frontend and publishes the ASP.NET Core API.
 - The frontend `dist/` files are copied into `wwwroot`.
 - ASP.NET Core serves both the API and frontend from one container.
-- `docker-compose.yml` mounts the local SQLite database and model files.
+- `docker-compose.yml` mounts `api/api/app.db` and `api/api/Models`.
 
 Prerequisites:
 
