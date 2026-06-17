@@ -8,8 +8,8 @@ from train_resnet50 import LABELS, build_model, export_onnx
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_WEIGHTS = PROJECT_ROOT / "backend" / "Models" / "brain-tumor-resnet50.pth"
-DEFAULT_ONNX = PROJECT_ROOT / "backend" / "Models" / "brain-tumor-resnet50.onnx"
+DEFAULT_WEIGHTS = PROJECT_ROOT / "api" / "api" /  "Models" / "brain-tumor-resnet50.pth"
+DEFAULT_ONNX = PROJECT_ROOT / "api" / "api" / "Models" / "brain-tumor-resnet50.onnx"
 
 
 def main():

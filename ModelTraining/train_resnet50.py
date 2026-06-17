@@ -12,7 +12,7 @@ from torchvision import datasets, models, transforms
 LABELS = ["glioma", "meningioma", "notumor", "pituitary"]
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DATASET = PROJECT_ROOT / "datasets" / "brain-mri"
-DEFAULT_OUTPUT = PROJECT_ROOT / "backend" / "Models"
+DEFAULT_OUTPUT = PROJECT_ROOT / "api" / "api" / "Models"
 
 
 def validate_dataset_root(dataset_root: Path):
