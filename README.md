@@ -218,13 +218,13 @@ From the API project directory:
 
 ```powershell
 cd api/api
-dotnet run --urls http://localhost:5091
+dotnet run --urls http://127.0.0.1:5091
 ```
 
 Health check:
 
 ```text
-http://localhost:5091/api/health
+http://127.0.0.1:5091/api/health
 ```
 
 Expected response:
@@ -252,7 +252,7 @@ http://127.0.0.1:5173
 The Vite dev server proxies `/api` requests to:
 
 ```text
-http://localhost:5091
+http://127.0.0.1:5091
 ```
 
 This is configured in:

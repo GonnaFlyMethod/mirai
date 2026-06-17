@@ -17,6 +17,8 @@ builder.Services.AddScoped<PatientService>();
 builder.Services.AddScoped<IScanRepository, Repository>();
 builder.Services.AddScoped<ScanService>();
 builder.Services.AddSingleton<IBrainTumorAnalyzer, OnnxBrainTumorAnalyzer>();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
@@ -37,9 +39,10 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseCors("Frontend");
+app.UseSwagger();
+app.UseSwaggerUI();
 app.UseDefaultFiles();
 app.UseStaticFiles();
-
 
 app.MapGet("/api/health", () => Results.Ok(new
 {
