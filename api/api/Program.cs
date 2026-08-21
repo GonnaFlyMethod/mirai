@@ -1,4 +1,5 @@
 using MedScans.Endpoints;
+using MedScans.Histories;
 using MedScans.Infrastructure;
 using MedScans.Patients;
 using MedScans.Scans;
@@ -17,6 +18,12 @@ builder.Services.AddScoped<PatientService>();
 builder.Services.AddScoped<IScanRepository, Repository>();
 builder.Services.AddScoped<ScanService>();
 builder.Services.AddSingleton<IBrainTumorAnalyzer, OnnxBrainTumorAnalyzer>();
+builder.Services.AddHttpClient<IOcrEngine, UnlimitedOcrEngine>(client =>
+{
+    var baseUrl = builder.Configuration["OcrEngine:BaseUrl"] ?? "http://localhost:8000";
+    client.BaseAddress = new Uri(baseUrl);
+    client.Timeout = TimeSpan.FromMinutes(5);
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>

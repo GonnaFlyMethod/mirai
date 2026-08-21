@@ -43,16 +43,21 @@ description (TEXT) REQUIRED
 the names of the columns should match the existing case in other tables.
 
 ### Task 1: Add support on backend
-- [ ] Incorporate baidu's Unlimited OCR(https://github.com/baidu/Unlimited-OCR) to recognize the text from pdf or images on pdf, I've only seen python's implementation, so i think
+- [x] Incorporate baidu's Unlimited OCR(https://github.com/baidu/Unlimited-OCR) to recognize the text from pdf or images on pdf, I've only seen python's implementation, so i think
 bindings are inavitable, if you will find C# version - let's grab this, otherwise let's proceed with bindings.
-- [ ] Use AppDbContext.cs to properly register the new table - Histories
-- [ ] Extend existing interface of patient's repository  - IPatientRepository
-- [ ] Extend existing repository of Patients - PatientRepository (creation, retrieval of history by patient id and search of histories). 
+Note for review: confirmed Unlimited-OCR is Python-only with no C# bindings. Rather than embedding a Python
+runtime in-process, added `IOcrEngine`/`UnlimitedOcrEngine` (api/api/Histories) which calls the OCR model over
+HTTP using the OpenAI-compatible API the upstream project recommends serving it behind (vLLM/SGLang), configured
+via `OcrEngine:BaseUrl`. This mirrors the existing `IBrainTumorAnalyzer` pattern. The OCR service itself still
+needs to be deployed separately - please review this integration approach.
+- [x] Use AppDbContext.cs to properly register the new table - Histories
+- [x] Extend existing interface of patient's repository  - IPatientRepository
+- [x] Extend existing repository of Patients - PatientRepository (creation, retrieval of history by patient id and search of histories). 
 Methods names and definition: 
 CreateHistory(<all paramrs required to create history>), 
 GetHistory(<patient_id>), 
 List<HistoryRecord> SearchInHistory(<search params described above: datetime, title, description>)
-- [ ] Extend existing service of Patients - PatientService (creation, retrieval of history by id and search of histories). 
+- [x] Extend existing service of Patients - PatientService (creation, retrieval of history by id and search of histories). 
 Methods names and definition: 
 void CreateHistory(<pdf_file>, <all paramrs required to create history>), 
 List<HistoryRecord> GetHistory(<patient_id>),
@@ -61,7 +66,12 @@ List<HistoryRecord> SearchInHistory(<search params described above: datetime, ti
 private method:
 	string Recognize(<pdf file>) accepts pdf file and returns recognized pdf text, formulas, text from images and so on as string
 
-- [ ] CreateHistory method of a service, it should iterate over recognized text from string Recognize(<pdf file>), split it onto chunks: one chunk = one record in jorunal
+Note for review: semantic search is implemented as a token-overlap (Jaccard) similarity scorer
+(api/api/Histories/HistorySimilarity.cs) rather than embedding/KNN search, to avoid adding a heavyweight
+ML dependency without your sign-off first. Swap for embedding-based KNN (e.g. ONNX sentence-embeddings +
+cosine similarity, consistent with OnnxBrainTumorAnalyzer) once reviewed.
+
+- [x] CreateHistory method of a service, it should iterate over recognized text from string Recognize(<pdf file>), split it onto chunks: one chunk = one record in jorunal
 consists from <record's datetime>, <record's title>, <record's description>
 
 ### Task 2
