@@ -56,11 +56,11 @@ public class PatientService
         return await repository.DeleteAsync(id);
     }
 
-    public async Task<List<HistoryRecord>> CreateHistory(Guid patientId, byte[] pdfFile, CancellationToken cancellationToken)
+    public async Task<List<HistoryRecord>?> CreateHistory(Guid patientId, byte[] pdfFile, CancellationToken cancellationToken)
     {
         if (await repository.GetByIdAsync(patientId) is null)
         {
-            throw new InvalidOperationException("Patient does not exist.");
+            return null;
         }
 
         if (pdfFile.Length == 0)
@@ -76,13 +76,7 @@ public class PatientService
             throw new InvalidOperationException("No history records could be recognized from the uploaded file.");
         }
 
-        var created = new List<HistoryRecord>();
-        foreach (var record in records)
-        {
-            created.Add(await repository.CreateHistoryAsync(record));
-        }
-
-        return created;
+        return await repository.CreateHistoriesAsync(records);
     }
 
     public async Task<List<HistoryRecord>?> GetHistory(Guid patientId)

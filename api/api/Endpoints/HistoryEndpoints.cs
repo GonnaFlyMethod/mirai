@@ -70,6 +70,11 @@ public static class HistoryEndpoints
 
                 var created = await service.CreateHistory(id, buffer.ToArray(), cancellationToken);
 
+                if (created is null)
+                {
+                    return Results.NotFound();
+                }
+
                 return Results.Created($"/api/patients/{id}/histories", created.Select(ToResponse));
             }
             catch (InvalidOperationException exception)

@@ -12,6 +12,7 @@ public interface IPatientRepository
     Task<bool> DeleteAsync(Guid id);
 
     Task<HistoryRecord> CreateHistoryAsync(HistoryRecord record);
+    Task<List<HistoryRecord>> CreateHistoriesAsync(List<HistoryRecord> records);
     Task<List<HistoryRecord>> GetHistoryAsync(Guid patientId);
     Task<List<HistoryRecord>> SearchInHistoryAsync(Guid patientId, HistorySearchCriteria criteria);
 }
@@ -67,6 +68,14 @@ public class PatientRepository : IPatientRepository
         await db.SaveChangesAsync();
 
         return record;
+    }
+
+    public async Task<List<HistoryRecord>> CreateHistoriesAsync(List<HistoryRecord> records)
+    {
+        db.Histories.AddRange(records);
+        await db.SaveChangesAsync();
+
+        return records;
     }
 
     public async Task<List<HistoryRecord>> GetHistoryAsync(Guid patientId)

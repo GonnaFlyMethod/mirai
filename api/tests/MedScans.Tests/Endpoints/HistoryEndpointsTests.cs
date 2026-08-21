@@ -118,6 +118,21 @@ public sealed class HistoryEndpointsTests : IClassFixture<HistoryEndpointsTests.
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
+    [Fact]
+    public async Task Post_for_nonexistent_patient_returns_not_found()
+    {
+        var client = factory.CreateClient();
+
+        using var form = new MultipartFormDataContent
+        {
+            { new ByteArrayContent(new byte[] { 1, 2, 3 }), "file", "history.pdf" }
+        };
+
+        var response = await client.PostAsync($"/api/patients/{Guid.NewGuid()}/histories", form);
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
     private static async Task<Guid> CreatePatient(HttpClient client)
     {
         var response = await client.PostAsJsonAsync("/api/patients", new

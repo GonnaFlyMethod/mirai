@@ -26,6 +26,7 @@ public sealed class PatientHistoryServiceTests
 
         var records = await service.CreateHistory(patient.Id, new byte[] { 1, 2, 3 }, CancellationToken.None);
 
+        Assert.NotNull(records);
         Assert.Equal(2, records.Count);
         Assert.Equal("Heartattack", records[0].Title);
         Assert.Equal("Patient got a heart attack when he took penicillin.", records[0].Description);
@@ -35,14 +36,15 @@ public sealed class PatientHistoryServiceTests
     }
 
     [Fact]
-    public async Task CreateHistory_throws_when_patient_does_not_exist()
+    public async Task CreateHistory_returns_null_when_patient_does_not_exist()
     {
         var repository = new FakePatientRepository();
         var ocrEngine = FakeOcrEngine.Returning("2026-03-12 Title\nDescription.");
         var service = new PatientService(repository, ocrEngine);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            service.CreateHistory(Guid.NewGuid(), new byte[] { 1 }, CancellationToken.None));
+        var result = await service.CreateHistory(Guid.NewGuid(), new byte[] { 1 }, CancellationToken.None);
+
+        Assert.Null(result);
     }
 
     [Fact]
@@ -168,6 +170,12 @@ public sealed class PatientHistoryServiceTests
         {
             _histories.Add(record);
             return Task.FromResult(record);
+        }
+
+        public Task<List<HistoryRecord>> CreateHistoriesAsync(List<HistoryRecord> records)
+        {
+            _histories.AddRange(records);
+            return Task.FromResult(records);
         }
 
         public Task<List<HistoryRecord>> GetHistoryAsync(Guid patientId) =>

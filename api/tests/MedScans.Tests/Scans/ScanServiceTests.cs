@@ -256,6 +256,11 @@ public sealed class ScanServiceTests
             throw new NotSupportedException();
         }
 
+        public Task<List<HistoryRecord>> CreateHistoriesAsync(List<HistoryRecord> records)
+        {
+            throw new NotSupportedException();
+        }
+
         public Task<List<HistoryRecord>> GetHistoryAsync(Guid patientId)
         {
             throw new NotSupportedException();
