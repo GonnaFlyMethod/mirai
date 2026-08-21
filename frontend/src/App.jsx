@@ -28,6 +28,9 @@ export default function App() {
   const [patientForm, setPatientForm] = useState(emptyPatient);
   const [showPatientForm, setShowPatientForm] = useState(false);
   const [scanFile, setScanFile] = useState(null);
+  const [historyRecords, setHistoryRecords] = useState([]);
+  const [historyFile, setHistoryFile] = useState(null);
+  const [historySearch, setHistorySearch] = useState({ datetime: "", title: "", description: "" });
   const [query, setQuery] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
@@ -74,6 +77,12 @@ export default function App() {
       setSelectedScan(selectedPatientScans[0] || null);
     }
   }, [selectedPatientId, selectedPatientScans, selectedScan?.patientId]);
+
+  useEffect(() => {
+    if (activeTab === "history" && selectedPatientId) {
+      fetchHistory({ datetime: "", title: "", description: "" });
+    }
+  }, [activeTab, selectedPatientId]);
 
   const enrichedPatients = useMemo(() => {
     return patients.map((patient) => {
@@ -139,6 +148,9 @@ export default function App() {
     setSelectedPatientId(id);
     setActiveTab("scans");
     setScanFile(null);
+    setHistoryFile(null);
+    setHistoryRecords([]);
+    setHistorySearch({ datetime: "", title: "", description: "" });
     setMessage("");
   }
 
@@ -230,6 +242,64 @@ export default function App() {
     }
   }
 
+  async function fetchHistory(criteria) {
+    if (!selectedPatientId) {
+      return;
+    }
+
+    const params = new URLSearchParams();
+    if (criteria.datetime) params.set("datetime", criteria.datetime);
+    if (criteria.title) params.set("title", criteria.title);
+    if (criteria.description) params.set("description", criteria.description);
+    const query = params.toString();
+
+    try {
+      const records = await api(`/api/patients/${selectedPatientId}/histories${query ? `?${query}` : ""}`);
+      setHistoryRecords(records);
+    } catch (error) {
+      setMessage(error.message);
+    }
+  }
+
+  async function uploadHistory(event) {
+    event.preventDefault();
+
+    if (!selectedPatientId) {
+      setMessage("Select a patient first.");
+      return;
+    }
+
+    if (!historyFile) {
+      setMessage("Choose a PDF file first.");
+      return;
+    }
+
+    setBusy(true);
+    setMessage("");
+
+    try {
+      const form = new FormData();
+      form.append("file", historyFile);
+
+      await api(`/api/patients/${selectedPatientId}/histories`, {
+        method: "POST",
+        body: form
+      });
+
+      setHistoryFile(null);
+      await fetchHistory(historySearch);
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function searchHistory(event) {
+    event.preventDefault();
+    fetchHistory(historySearch);
+  }
+
   return (
     <main className="appShell">
       <header className="topbar">
@@ -298,6 +368,13 @@ export default function App() {
           onAnalyzeScan={analyzeScan}
           onDelete={deletePatient}
           busy={busy}
+          historyRecords={historyRecords}
+          historyFile={historyFile}
+          setHistoryFile={setHistoryFile}
+          historySearch={historySearch}
+          setHistorySearch={setHistorySearch}
+          onUploadHistory={uploadHistory}
+          onSearchHistory={searchHistory}
         />
       </section>
     </main>

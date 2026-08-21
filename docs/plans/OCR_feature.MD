@@ -81,9 +81,9 @@ GET /patients/{id}/histories without query params -> List<HistoryRecord> GetHist
 GET /patients/{id}/histories with query params like datetime and/or title and/or description -> List<HistoryRecord> SearchInHistory
 
 ### Task 3: Add support of the functionality on frontend
-- [ ] Add the new client code to the frontend that will utilize the above mentioned endpoints. Client should make POST request to
+- [x] Add the new client code to the frontend that will utilize the above mentioned endpoints. Client should make POST request to
 POST /patients/{id}/histories when doctor uploaded .pdf scan and hit the button.
-- [ ] Add input fields for search through the historie's records: datetime search - calendar widget, title - input field, 
+- [x] Add input fields for search through the historie's records: datetime search - calendar widget, title - input field, 
 description - input field
-- [ ] Add one more tab in the patient's webpage alongside with scans and patient's info - history, the search fields should be added into this
+- [x] Add one more tab in the patient's webpage alongside with scans and patient's info - history, the search fields should be added into this
 tab and, automatically when user navigates to this tab, the frontend should execute request to just get all history of the patient - GET /patients/{id}/histories
