@@ -26,7 +26,7 @@ The app lets you:
 
 ## Tech Stack
 
-- Backend: ASP.NET Core 7
+- Backend: ASP.NET Core 8
 - Database: SQLite
 - Machine learning inference: ONNX Runtime
 - Image preprocessing: SixLabors ImageSharp
@@ -87,7 +87,7 @@ Use `api/api.sln` when you only want to work on the backend and tests.
 
 Install these tools before running the project:
 
-- .NET SDK 7.0 or newer
+- .NET SDK 8.0 or newer
 - Node.js 20 or newer
 - npm, included with Node.js
 
