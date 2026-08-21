@@ -85,8 +85,31 @@ public sealed class PatientHistoryServiceTests
 
         var results = await service.SearchInHistory(patient.Id, new HistorySearchCriteria(null, "Heartattack", null));
 
+        Assert.NotNull(results);
         Assert.Single(results);
-        Assert.Equal(record.Id, results[0].Id);
+        Assert.Equal(record.Id, results![0].Id);
+    }
+
+    [Fact]
+    public async Task GetHistory_returns_null_when_patient_does_not_exist()
+    {
+        var repository = new FakePatientRepository();
+        var service = new PatientService(repository, FakeOcrEngine.Returning(string.Empty));
+
+        var result = await service.GetHistory(Guid.NewGuid());
+
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task SearchInHistory_returns_null_when_patient_does_not_exist()
+    {
+        var repository = new FakePatientRepository();
+        var service = new PatientService(repository, FakeOcrEngine.Returning(string.Empty));
+
+        var result = await service.SearchInHistory(Guid.NewGuid(), new HistorySearchCriteria(null, "Heartattack", null));
+
+        Assert.Null(result);
     }
 
     private sealed class FakeOcrEngine : IOcrEngine

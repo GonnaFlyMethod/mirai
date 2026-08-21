@@ -18,7 +18,8 @@ public static class HistoryEndpoints
         {
             if (datetime is null && title is null && description is null)
             {
-                return Results.Ok((await service.GetHistory(id)).Select(ToResponse));
+                var history = await service.GetHistory(id);
+                return history is null ? Results.NotFound() : Results.Ok(history.Select(ToResponse));
             }
 
             DateTime? parsedDatetime = null;
@@ -39,7 +40,7 @@ public static class HistoryEndpoints
             var criteria = new HistorySearchCriteria(parsedDatetime, title, description);
             var results = await service.SearchInHistory(id, criteria);
 
-            return Results.Ok(results.Select(ToResponse));
+            return results is null ? Results.NotFound() : Results.Ok(results.Select(ToResponse));
         });
 
         group.MapPost("/", async (

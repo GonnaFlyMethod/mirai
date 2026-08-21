@@ -85,13 +85,23 @@ public class PatientService
         return created;
     }
 
-    public async Task<List<HistoryRecord>> GetHistory(Guid patientId)
+    public async Task<List<HistoryRecord>?> GetHistory(Guid patientId)
     {
+        if (await repository.GetByIdAsync(patientId) is null)
+        {
+            return null;
+        }
+
         return await repository.GetHistoryAsync(patientId);
     }
 
-    public async Task<List<HistoryRecord>> SearchInHistory(Guid patientId, HistorySearchCriteria criteria)
+    public async Task<List<HistoryRecord>?> SearchInHistory(Guid patientId, HistorySearchCriteria criteria)
     {
+        if (await repository.GetByIdAsync(patientId) is null)
+        {
+            return null;
+        }
+
         return await repository.SearchInHistoryAsync(patientId, criteria);
     }
 

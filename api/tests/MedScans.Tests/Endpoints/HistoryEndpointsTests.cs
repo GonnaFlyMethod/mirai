@@ -98,6 +98,26 @@ public sealed class HistoryEndpointsTests : IClassFixture<HistoryEndpointsTests.
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    [Fact]
+    public async Task Get_for_nonexistent_patient_returns_not_found()
+    {
+        var client = factory.CreateClient();
+
+        var response = await client.GetAsync($"/api/patients/{Guid.NewGuid()}/histories");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Get_with_search_query_for_nonexistent_patient_returns_not_found()
+    {
+        var client = factory.CreateClient();
+
+        var response = await client.GetAsync($"/api/patients/{Guid.NewGuid()}/histories?title=Heartattack");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
     private static async Task<Guid> CreatePatient(HttpClient client)
     {
         var response = await client.PostAsJsonAsync("/api/patients", new
