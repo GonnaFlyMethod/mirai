@@ -59,6 +59,9 @@ app.MapGet("/api/health", () => Results.Ok(new
 
 app.MapPatientEndpoints();
 app.MapScanEndpoints();
+app.MapHistoryEndpoints();
 app.MapFallbackToFile("index.html");
 
 app.Run();
+
+public partial class Program;

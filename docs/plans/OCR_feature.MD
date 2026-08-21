@@ -75,7 +75,7 @@ cosine similarity, consistent with OnnxBrainTumorAnalyzer) once reviewed.
 consists from <record's datetime>, <record's title>, <record's description>
 
 ### Task 2
-- [ ] Links methods of service to appropriate endpoinds on the server:
+- [x] Links methods of service to appropriate endpoinds on the server:
 POST /patients/{id}/histories -> CreateHistory method in the service
 GET /patients/{id}/histories without query params -> List<HistoryRecord> GetHistory(<patient_id>)
 GET /patients/{id}/histories with query params like datetime and/or title and/or description -> List<HistoryRecord> SearchInHistory
