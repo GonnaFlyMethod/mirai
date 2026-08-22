@@ -1,3 +1,4 @@
+using MedScans.Histories;
 using MedScans.Patients;
 using MedScans.Scans;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,8 @@ public sealed class AppDbContext : DbContext
     public DbSet<Patient> Patients => Set<Patient>();
 
     public DbSet<BrainScan> BrainScans => Set<BrainScan>();
+
+    public DbSet<HistoryRecord> Histories => Set<HistoryRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -47,6 +50,20 @@ public sealed class AppDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(scan => scan.PatientId)
                 .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<HistoryRecord>(entity =>
+        {
+            entity.ToTable("Histories");
+            entity.HasKey(record => record.Id);
+            entity.Property(record => record.Datetime).IsRequired();
+            entity.Property(record => record.Title).HasMaxLength(1500).IsRequired();
+            entity.Property(record => record.Description).IsRequired();
+            entity.HasOne<Patient>()
+                .WithMany()
+                .HasForeignKey(record => record.PatientId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

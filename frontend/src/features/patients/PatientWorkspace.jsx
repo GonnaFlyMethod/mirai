@@ -1,6 +1,7 @@
 import { Trash2, Upload, UserRound } from "lucide-react";
 import ScansTab from "../scans/ScansTab";
 import UploadTab from "../scans/UploadTab";
+import HistoryTab from "../histories/HistoryTab";
 import DetailsTab from "./DetailsTab";
 
 export default function PatientWorkspace({
@@ -14,7 +15,14 @@ export default function PatientWorkspace({
   onSelectScan,
   onAnalyzeScan,
   onDelete,
-  busy
+  busy,
+  historyRecords,
+  historyFile,
+  setHistoryFile,
+  historySearch,
+  setHistorySearch,
+  onUploadHistory,
+  onSearchHistory
 }) {
   if (!patient) {
     return (
@@ -58,6 +66,9 @@ export default function PatientWorkspace({
         <button className={activeTab === "details" ? "active" : ""} onClick={() => setActiveTab("details")} type="button">
           Patient details
         </button>
+        <button className={activeTab === "history" ? "active" : ""} onClick={() => setActiveTab("history")} type="button">
+          History <span>{historyRecords.length}</span>
+        </button>
       </nav>
 
       {activeTab === "scans" && (
@@ -70,6 +81,20 @@ export default function PatientWorkspace({
 
       {activeTab === "details" && (
         <DetailsTab patient={patient} />
+      )}
+
+      {activeTab === "history" && (
+        <HistoryTab
+          patient={patient}
+          historyRecords={historyRecords}
+          historyFile={historyFile}
+          setHistoryFile={setHistoryFile}
+          historySearch={historySearch}
+          setHistorySearch={setHistorySearch}
+          onUpload={onUploadHistory}
+          onSearch={onSearchHistory}
+          busy={busy}
+        />
       )}
     </section>
   );

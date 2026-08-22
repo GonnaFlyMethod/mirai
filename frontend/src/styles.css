@@ -395,7 +395,7 @@ input::placeholder {
   border-radius: 8px;
   display: grid;
   gap: 0.4rem;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   padding: 0.4rem;
 }
 
@@ -577,6 +577,75 @@ input::placeholder {
   text-align: center;
 }
 
+.historyTab {
+  display: grid;
+  gap: 1rem;
+}
+
+.historyUpload {
+  align-items: center;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.historyUpload .fileDrop {
+  min-height: 90px;
+  padding: 0.75rem;
+}
+
+.historySearch {
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  padding: 0.75rem;
+}
+
+.searchField {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  display: flex;
+  gap: 0.5rem;
+  padding: 0 0.75rem;
+}
+
+.searchField input {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  min-height: 40px;
+  padding-left: 0;
+  width: 100%;
+}
+
+.historyList {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.historyRecord {
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.85rem;
+}
+
+.historyRecord .historyDate {
+  color: #77e0d6;
+  font-size: 0.8rem;
+}
+
+.historyRecord p {
+  color: #b8c8ce;
+}
+
 @media (max-width: 900px) {
   .workspace,
   .scanWorkspace {
@@ -606,7 +675,9 @@ input::placeholder {
     grid-template-columns: 1fr;
   }
 
-  .tabs {
+  .tabs,
+  .historySearch,
+  .historyUpload {
     grid-template-columns: 1fr;
   }
 }

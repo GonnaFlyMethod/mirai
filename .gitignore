@@ -43,6 +43,8 @@ ScaffoldingReadMe.txt
 *.nupkg
 # NuGet Symbol Packages
 *.snupkg
+# Machine-local NuGet cache redirect (only needed when the default drive is out of space)
+/nuget.config
 
 # dotenv environment variables file
 .env

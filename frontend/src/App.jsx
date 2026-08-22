@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Activity,
   Brain,
@@ -28,9 +28,18 @@ export default function App() {
   const [patientForm, setPatientForm] = useState(emptyPatient);
   const [showPatientForm, setShowPatientForm] = useState(false);
   const [scanFile, setScanFile] = useState(null);
+  const [historyRecords, setHistoryRecords] = useState([]);
+  const [historyFile, setHistoryFile] = useState(null);
+  const [historySearch, setHistorySearch] = useState({ datetime: "", title: "", description: "" });
   const [query, setQuery] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const selectedPatientIdRef = useRef(selectedPatientId);
+
+  function updateSelectedPatientId(id) {
+    selectedPatientIdRef.current = id;
+    setSelectedPatientId(id);
+  }
 
   useEffect(() => {
     refreshAll();
@@ -74,6 +83,12 @@ export default function App() {
       setSelectedScan(selectedPatientScans[0] || null);
     }
   }, [selectedPatientId, selectedPatientScans, selectedScan?.patientId]);
+
+  useEffect(() => {
+    if (selectedPatientId) {
+      fetchHistory({ datetime: "", title: "", description: "" });
+    }
+  }, [selectedPatientId]);
 
   const enrichedPatients = useMemo(() => {
     return patients.map((patient) => {
@@ -136,9 +151,12 @@ export default function App() {
   }
 
   function selectPatient(id) {
-    setSelectedPatientId(id);
+    updateSelectedPatientId(id);
     setActiveTab("scans");
     setScanFile(null);
+    setHistoryFile(null);
+    setHistoryRecords([]);
+    setHistorySearch({ datetime: "", title: "", description: "" });
     setMessage("");
   }
 
@@ -155,7 +173,7 @@ export default function App() {
       });
       setPatientForm(emptyPatient);
       setShowPatientForm(false);
-      setSelectedPatientId(created.id);
+      updateSelectedPatientId(created.id);
       setActiveTab("details");
       await refreshAll();
     } catch (error) {
@@ -172,7 +190,7 @@ export default function App() {
     try {
       await api(`/api/patients/${id}`, { method: "DELETE", empty: true });
       if (selectedPatientId === id) {
-        setSelectedPatientId("");
+        updateSelectedPatientId("");
         setSelectedScan(null);
       }
       await refreshAll();
@@ -228,6 +246,69 @@ export default function App() {
     } catch (error) {
       setMessage(error.message);
     }
+  }
+
+  async function fetchHistory(criteria) {
+    if (!selectedPatientId) {
+      return;
+    }
+
+    const requestedPatientId = selectedPatientId;
+    const params = new URLSearchParams();
+    if (criteria.datetime) params.set("datetime", criteria.datetime);
+    if (criteria.title) params.set("title", criteria.title);
+    if (criteria.description) params.set("description", criteria.description);
+    const query = params.toString();
+
+    try {
+      const records = await api(`/api/patients/${requestedPatientId}/histories${query ? `?${query}` : ""}`);
+      if (selectedPatientIdRef.current === requestedPatientId) {
+        setHistoryRecords(records);
+      }
+    } catch (error) {
+      if (selectedPatientIdRef.current === requestedPatientId) {
+        setMessage(error.message);
+      }
+    }
+  }
+
+  async function uploadHistory(event) {
+    event.preventDefault();
+
+    if (!selectedPatientId) {
+      setMessage("Select a patient first.");
+      return;
+    }
+
+    if (!historyFile) {
+      setMessage("Choose a PDF file first.");
+      return;
+    }
+
+    setBusy(true);
+    setMessage("");
+
+    try {
+      const form = new FormData();
+      form.append("file", historyFile);
+
+      await api(`/api/patients/${selectedPatientId}/histories`, {
+        method: "POST",
+        body: form
+      });
+
+      setHistoryFile(null);
+      await fetchHistory(historySearch);
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function searchHistory(event) {
+    event.preventDefault();
+    fetchHistory(historySearch);
   }
 
   return (
@@ -298,6 +379,13 @@ export default function App() {
           onAnalyzeScan={analyzeScan}
           onDelete={deletePatient}
           busy={busy}
+          historyRecords={historyRecords}
+          historyFile={historyFile}
+          setHistoryFile={setHistoryFile}
+          historySearch={historySearch}
+          setHistorySearch={setHistorySearch}
+          onUploadHistory={uploadHistory}
+          onSearchHistory={searchHistory}
         />
       </section>
     </main>
