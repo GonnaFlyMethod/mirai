@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Activity,
   Brain,
@@ -34,6 +34,12 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const selectedPatientIdRef = useRef(selectedPatientId);
+
+  function updateSelectedPatientId(id) {
+    selectedPatientIdRef.current = id;
+    setSelectedPatientId(id);
+  }
 
   useEffect(() => {
     refreshAll();
@@ -79,10 +85,10 @@ export default function App() {
   }, [selectedPatientId, selectedPatientScans, selectedScan?.patientId]);
 
   useEffect(() => {
-    if (activeTab === "history" && selectedPatientId) {
+    if (selectedPatientId) {
       fetchHistory({ datetime: "", title: "", description: "" });
     }
-  }, [activeTab, selectedPatientId]);
+  }, [selectedPatientId]);
 
   const enrichedPatients = useMemo(() => {
     return patients.map((patient) => {
@@ -145,7 +151,7 @@ export default function App() {
   }
 
   function selectPatient(id) {
-    setSelectedPatientId(id);
+    updateSelectedPatientId(id);
     setActiveTab("scans");
     setScanFile(null);
     setHistoryFile(null);
@@ -167,7 +173,7 @@ export default function App() {
       });
       setPatientForm(emptyPatient);
       setShowPatientForm(false);
-      setSelectedPatientId(created.id);
+      updateSelectedPatientId(created.id);
       setActiveTab("details");
       await refreshAll();
     } catch (error) {
@@ -184,7 +190,7 @@ export default function App() {
     try {
       await api(`/api/patients/${id}`, { method: "DELETE", empty: true });
       if (selectedPatientId === id) {
-        setSelectedPatientId("");
+        updateSelectedPatientId("");
         setSelectedScan(null);
       }
       await refreshAll();
@@ -247,6 +253,7 @@ export default function App() {
       return;
     }
 
+    const requestedPatientId = selectedPatientId;
     const params = new URLSearchParams();
     if (criteria.datetime) params.set("datetime", criteria.datetime);
     if (criteria.title) params.set("title", criteria.title);
@@ -254,10 +261,14 @@ export default function App() {
     const query = params.toString();
 
     try {
-      const records = await api(`/api/patients/${selectedPatientId}/histories${query ? `?${query}` : ""}`);
-      setHistoryRecords(records);
+      const records = await api(`/api/patients/${requestedPatientId}/histories${query ? `?${query}` : ""}`);
+      if (selectedPatientIdRef.current === requestedPatientId) {
+        setHistoryRecords(records);
+      }
     } catch (error) {
-      setMessage(error.message);
+      if (selectedPatientIdRef.current === requestedPatientId) {
+        setMessage(error.message);
+      }
     }
   }
 
