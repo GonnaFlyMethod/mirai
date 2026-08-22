@@ -1,4 +1,3 @@
-using MedScans.Histories;
 using MedScans.Patients;
 using MedScans.Scans;
 
@@ -249,26 +248,6 @@ public sealed class ScanServiceTests
 
             _patients.Remove(patient);
             return Task.FromResult(true);
-        }
-
-        public Task<HistoryRecord> CreateHistoryAsync(HistoryRecord record)
-        {
-            throw new NotSupportedException();
-        }
-
-        public Task<List<HistoryRecord>> CreateHistoriesAsync(List<HistoryRecord> records)
-        {
-            throw new NotSupportedException();
-        }
-
-        public Task<List<HistoryRecord>> GetHistoryAsync(Guid patientId)
-        {
-            throw new NotSupportedException();
-        }
-
-        public Task<List<HistoryRecord>> SearchInHistoryAsync(Guid patientId, HistorySearchCriteria criteria)
-        {
-            throw new NotSupportedException();
         }
     }
 

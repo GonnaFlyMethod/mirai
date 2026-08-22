@@ -1,10 +1,13 @@
 using MedScans.Histories;
-using MedScans.Patients;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace MedScans.Endpoints;
 
 public static class HistoryEndpoints
 {
+    private const long DefaultMaxUploadSizeBytes = 20 * 1024 * 1024;
+    private const long MultipartOverheadBytes = 64 * 1024;
+
     public static IEndpointRouteBuilder MapHistoryEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/patients/{id:guid}/histories");
@@ -14,18 +17,12 @@ public static class HistoryEndpoints
             string? datetime,
             string? title,
             string? description,
-            PatientService service) =>
+            HistoryService service) =>
         {
-            if (datetime is null && title is null && description is null)
-            {
-                var history = await service.GetHistory(id);
-                return history is null ? Results.NotFound() : Results.Ok(history.Select(ToResponse));
-            }
-
             DateTime? parsedDatetime = null;
             if (!string.IsNullOrWhiteSpace(datetime))
             {
-                if (!DateTime.TryParse(
+                if (!DateTimeOffset.TryParse(
                         datetime,
                         System.Globalization.CultureInfo.InvariantCulture,
                         System.Globalization.DateTimeStyles.None,
@@ -34,7 +31,7 @@ public static class HistoryEndpoints
                     return Results.BadRequest(new { error = "datetime must be a valid ISO8601 date/time." });
                 }
 
-                parsedDatetime = value;
+                parsedDatetime = value.DateTime;
             }
 
             var criteria = new HistorySearchCriteria(parsedDatetime, title, description);
@@ -46,14 +43,23 @@ public static class HistoryEndpoints
         group.MapPost("/", async (
             Guid id,
             HttpRequest request,
-            PatientService service,
+            HistoryService service,
+            IConfiguration configuration,
             CancellationToken cancellationToken) =>
         {
+            var maxUploadSizeBytes = configuration.GetValue<long?>("HistoryUpload:MaxSizeBytes") ?? DefaultMaxUploadSizeBytes;
+
             try
             {
                 if (!request.HasFormContentType)
                 {
                     return Results.BadRequest(new { error = "Expected a multipart form upload." });
+                }
+
+                var maxRequestBodySizeFeature = request.HttpContext.Features.Get<IHttpMaxRequestBodySizeFeature>();
+                if (maxRequestBodySizeFeature is { IsReadOnly: false })
+                {
+                    maxRequestBodySizeFeature.MaxRequestBodySize = maxUploadSizeBytes + MultipartOverheadBytes;
                 }
 
                 var form = await request.ReadFormAsync(cancellationToken);
@@ -62,6 +68,16 @@ public static class HistoryEndpoints
                 if (file is null)
                 {
                     return Results.BadRequest(new { error = "A PDF file with the patient's history is required." });
+                }
+
+                if (!string.Equals(file.ContentType, "application/pdf", StringComparison.OrdinalIgnoreCase))
+                {
+                    return Results.BadRequest(new { error = "Only PDF files are supported." });
+                }
+
+                if (file.Length > maxUploadSizeBytes)
+                {
+                    return Results.BadRequest(new { error = $"The PDF file must not exceed {maxUploadSizeBytes / (1024 * 1024)} MB." });
                 }
 
                 await using var stream = file.OpenReadStream();
@@ -80,6 +96,10 @@ public static class HistoryEndpoints
             catch (InvalidOperationException exception)
             {
                 return Results.BadRequest(new { error = exception.Message });
+            }
+            catch (BadHttpRequestException)
+            {
+                return Results.BadRequest(new { error = $"The PDF file must not exceed {maxUploadSizeBytes / (1024 * 1024)} MB." });
             }
         });
 

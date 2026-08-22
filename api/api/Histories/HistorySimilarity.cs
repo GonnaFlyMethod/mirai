@@ -11,6 +11,9 @@ public static class HistorySimilarity
 {
     private static readonly char[] Separators = { ' ', '\t', '\n', '\r', '.', ',', ';', ':', '!', '?' };
 
+    // Every criterion the caller actually specified must match (score > 0) -- a strong hit
+    // on one field can't paper over a complete miss on another. Only specified fields are
+    // considered at all, so a search using just one filter is unaffected.
     public static double Score(HistoryRecord record, HistorySearchCriteria criteria)
     {
         double score = 0;
@@ -18,13 +21,25 @@ public static class HistorySimilarity
 
         if (!string.IsNullOrWhiteSpace(criteria.Title))
         {
-            score += TokenOverlap(record.Title, criteria.Title);
+            var titleScore = TokenOverlap(record.Title, criteria.Title);
+            if (titleScore == 0)
+            {
+                return 0;
+            }
+
+            score += titleScore;
             matched++;
         }
 
         if (!string.IsNullOrWhiteSpace(criteria.Description))
         {
-            score += TokenOverlap(record.Description, criteria.Description);
+            var descriptionScore = TokenOverlap(record.Description, criteria.Description);
+            if (descriptionScore == 0)
+            {
+                return 0;
+            }
+
+            score += descriptionScore;
             matched++;
         }
 

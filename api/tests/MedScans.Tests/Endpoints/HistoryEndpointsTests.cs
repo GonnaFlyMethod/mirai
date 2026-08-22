@@ -31,7 +31,7 @@ public sealed class HistoryEndpointsTests : IClassFixture<HistoryEndpointsTests.
 
         using var form = new MultipartFormDataContent
         {
-            { new ByteArrayContent(new byte[] { 1, 2, 3 }), "file", "history.pdf" }
+            { PdfFileContent(new byte[] { 1, 2, 3 }), "file", "history.pdf" }
         };
 
         var postResponse = await client.PostAsync($"/api/patients/{patientId}/histories", form);
@@ -58,7 +58,7 @@ public sealed class HistoryEndpointsTests : IClassFixture<HistoryEndpointsTests.
 
         using var form = new MultipartFormDataContent
         {
-            { new ByteArrayContent(new byte[] { 1 }), "file", "history.pdf" }
+            { PdfFileContent(new byte[] { 1 }), "file", "history.pdf" }
         };
         await client.PostAsync($"/api/patients/{patientId}/histories", form);
 
@@ -69,6 +69,41 @@ public sealed class HistoryEndpointsTests : IClassFixture<HistoryEndpointsTests.
         Assert.NotNull(records);
         Assert.Single(records!);
         Assert.Equal("Heartattack", records![0].Title);
+    }
+
+    [Fact]
+    public async Task Post_with_non_pdf_content_type_returns_bad_request()
+    {
+        var client = factory.CreateClient();
+        var patientId = await CreatePatient(client);
+
+        using var fileContent = new ByteArrayContent(new byte[] { 1, 2, 3 });
+        fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/plain");
+        using var form = new MultipartFormDataContent
+        {
+            { fileContent, "file", "history.txt" }
+        };
+
+        var response = await client.PostAsync($"/api/patients/{patientId}/histories", form);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Post_with_file_larger_than_configured_limit_returns_bad_request()
+    {
+        using var limitedFactory = new HistoryWebApplicationFactory().WithMaxUploadSizeBytes(10);
+        var client = limitedFactory.CreateClient();
+        var patientId = await CreatePatient(client);
+
+        using var form = new MultipartFormDataContent
+        {
+            { PdfFileContent(new byte[1024]), "file", "history.pdf" }
+        };
+
+        var response = await client.PostAsync($"/api/patients/{patientId}/histories", form);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [Fact]
@@ -125,12 +160,19 @@ public sealed class HistoryEndpointsTests : IClassFixture<HistoryEndpointsTests.
 
         using var form = new MultipartFormDataContent
         {
-            { new ByteArrayContent(new byte[] { 1, 2, 3 }), "file", "history.pdf" }
+            { PdfFileContent(new byte[] { 1, 2, 3 }), "file", "history.pdf" }
         };
 
         var response = await client.PostAsync($"/api/patients/{Guid.NewGuid()}/histories", form);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    private static ByteArrayContent PdfFileContent(byte[] bytes)
+    {
+        var content = new ByteArrayContent(bytes);
+        content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
+        return content;
     }
 
     private static async Task<Guid> CreatePatient(HttpClient client)
@@ -157,7 +199,15 @@ public sealed class HistoryEndpointsTests : IClassFixture<HistoryEndpointsTests.
 
     public sealed class HistoryWebApplicationFactory : WebApplicationFactory<Program>
     {
+        private long? maxUploadSizeBytes;
+
         public FakeOcrEngine OcrEngine { get; } = new();
+
+        public HistoryWebApplicationFactory WithMaxUploadSizeBytes(long value)
+        {
+            maxUploadSizeBytes = value;
+            return this;
+        }
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
@@ -165,10 +215,17 @@ public sealed class HistoryEndpointsTests : IClassFixture<HistoryEndpointsTests.
 
             builder.ConfigureAppConfiguration((_, configuration) =>
             {
-                configuration.AddInMemoryCollection(new Dictionary<string, string?>
+                var settings = new Dictionary<string, string?>
                 {
                     ["ConnectionStrings:Default"] = $"Data Source={dbPath}"
-                });
+                };
+
+                if (maxUploadSizeBytes is not null)
+                {
+                    settings["HistoryUpload:MaxSizeBytes"] = maxUploadSizeBytes.ToString();
+                }
+
+                configuration.AddInMemoryCollection(settings);
             });
 
             builder.ConfigureServices(services =>
