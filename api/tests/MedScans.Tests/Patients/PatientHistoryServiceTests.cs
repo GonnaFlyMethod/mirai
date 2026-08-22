@@ -36,6 +36,36 @@ public sealed class PatientHistoryServiceTests
     }
 
     [Fact]
+    public async Task CreateHistory_does_not_split_record_on_date_mentioned_inside_description()
+    {
+        var patient = Patient.Create(
+            "Emily",
+            "Carter",
+            new DateOnly(1995, 12, 10),
+            "Female",
+            "emily.carter@example.com",
+            "+1 (555) 013-4829",
+            "125 Maple Street, Austin, TX 78701");
+
+        var repository = new FakePatientRepository(patient);
+        var ocrEngine = FakeOcrEngine.Returning(
+            "2026-03-12 Heartattack\nPatient got a heart attack, follow-up scheduled for 2026-04-01 as a precaution.\n" +
+            "2026-05-01 Checkup\nRoutine checkup, no concerns.");
+
+        var service = new PatientService(repository, ocrEngine);
+
+        var records = await service.CreateHistory(patient.Id, new byte[] { 1, 2, 3 }, CancellationToken.None);
+
+        Assert.NotNull(records);
+        Assert.Equal(2, records.Count);
+        Assert.Equal("Heartattack", records[0].Title);
+        Assert.Equal(
+            "Patient got a heart attack, follow-up scheduled for 2026-04-01 as a precaution.",
+            records[0].Description);
+        Assert.Equal("Checkup", records[1].Title);
+    }
+
+    [Fact]
     public async Task CreateHistory_returns_null_when_patient_does_not_exist()
     {
         var repository = new FakePatientRepository();

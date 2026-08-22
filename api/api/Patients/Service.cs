@@ -15,8 +15,8 @@ public sealed record CreatePatientRequest(
 public class PatientService
 {
     private static readonly Regex DatetimePattern = new(
-        @"\d{4}-\d{2}-\d{2}(?:[T ]\d{2}:\d{2}(?::\d{2})?)?",
-        RegexOptions.Compiled);
+        @"^[ \t]*(\d{4}-\d{2}-\d{2}(?:[T ]\d{2}:\d{2}(?::\d{2})?)?)",
+        RegexOptions.Compiled | RegexOptions.Multiline);
 
     private readonly IPatientRepository repository;
     private readonly IOcrEngine ocrEngine;
@@ -118,11 +118,12 @@ public class PatientService
         for (var i = 0; i < matches.Count; i++)
         {
             var match = matches[i];
+            var dateGroup = match.Groups[1];
             var chunkEnd = i + 1 < matches.Count ? matches[i + 1].Index : recognizedText.Length;
-            var remainder = recognizedText[(match.Index + match.Length)..chunkEnd].Trim();
+            var remainder = recognizedText[(dateGroup.Index + dateGroup.Length)..chunkEnd].Trim();
 
             if (remainder.Length == 0 || !DateTime.TryParse(
-                    match.Value,
+                    dateGroup.Value,
                     System.Globalization.CultureInfo.InvariantCulture,
                     System.Globalization.DateTimeStyles.None,
                     out var datetime))
